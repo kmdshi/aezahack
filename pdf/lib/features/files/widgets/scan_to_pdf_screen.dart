@@ -4,6 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pdf_app/features/files/blocs/scan_to_pdf/scantopdf_bloc.dart';
 import 'package:pdf_app/features/files/widgets/crop_screen.dart';
 import 'package:pdfx/pdfx.dart';
@@ -187,11 +188,9 @@ class _ScanToPdfScreenState extends State<ScanToPdfScreen> {
                         onPressed: () async {
                           final bytes = state.pdfBytes;
 
-                          final downloadDir = Directory(
-                            "/storage/emulated/0/Download",
-                          );
+                          final dir = await getApplicationDocumentsDirectory();
                           final path =
-                              "${downloadDir.path}/scan_${DateTime.now().millisecondsSinceEpoch}.pdf";
+                              "${dir.path}/scan_${DateTime.now().millisecondsSinceEpoch}.pdf";
 
                           final file = File(path);
                           await file.writeAsBytes(bytes);

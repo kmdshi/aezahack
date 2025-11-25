@@ -25,7 +25,7 @@ class _ActionsGroupWidgetState extends State<ActionsGroupWidget> {
               borderRadius: BorderRadius.circular(18),
               border: Border.all(color: Colors.white.withOpacity(0.15)),
               image: const DecorationImage(
-                image: AssetImage("assets/images/actions/scan1.png"),
+                image: AssetImage("assets/images/actions/scan.png"),
                 fit: BoxFit.cover,
               ),
             ),

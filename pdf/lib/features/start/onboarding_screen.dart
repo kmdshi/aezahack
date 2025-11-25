@@ -54,9 +54,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeOut,
       );
     } else {
-      Navigator.of(
+      Navigator.pushReplacement(
         context,
-      ).pushReplacement(CupertinoPageRoute(builder: (_) => RootScreen()));
+        CupertinoPageRoute(builder: (_) => RootScreen()),
+      );
     }
   }
 
@@ -71,8 +72,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+
     return Scaffold(
-      backgroundColor: Color(0xFFF5F6FA),
+      backgroundColor: const Color(0xFFF5F6FA),
       body: Stack(
         children: [
           Positioned.fill(
@@ -96,9 +99,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           customBorder: const CircleBorder(),
                           onTap: prevPage,
                           child: SizedBox(
-                            width: 62,
-                            height: 62,
-                            child: Icon(
+                            width: w * 0.15,
+                            height: w * 0.15,
+                            child: const Icon(
                               CupertinoIcons.back,
                               color: Colors.black,
                             ),
@@ -124,18 +127,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         shape: const CircleBorder(),
                         child: InkWell(
                           customBorder: const CircleBorder(),
-                          onTap: () => Navigator.of(context).pushReplacement(
+                          onTap: () => Navigator.pushReplacement(
+                            context,
                             CupertinoPageRoute(builder: (_) => RootScreen()),
                           ),
                           child: Container(
-                            width: 109,
-                            height: 62,
+                            width: w * 0.27,
+                            height: w * 0.15,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(100),
                             ),
-                            child: Center(
-                              child: const Text(
+                            child: const Center(
+                              child: Text(
                                 "Skip",
                                 style: TextStyle(
                                   color: Colors.blueAccent,
@@ -150,93 +154,81 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ),
 
+                const SizedBox(height: 10),
+
                 Expanded(
-                  child: Stack(
-                    children: [
-                      PageView.builder(
-                        controller: _controller,
-                        onPageChanged: (i) => setState(() => _page = i),
-                        itemCount: pages.length,
-                        itemBuilder: (context, index) {
-                          return SingleChildScrollView(
-                            physics: const NeverScrollableScrollPhysics(),
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                24,
-                                40,
-                                24,
-                                140,
+                  child: PageView.builder(
+                    controller: _controller,
+                    onPageChanged: (i) => setState(() => _page = i),
+                    itemCount: pages.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 10, 24, 25),
+                        child: Column(
+                          children: [
+                            Text(
+                              pages[index]["title"]!,
+                              style: const TextStyle(
+                                color: Color(0xFF383838),
+                                fontSize: 32,
+                                fontWeight: FontWeight.w500,
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    pages[index]["title"]!,
-                                    style: const TextStyle(
-                                      color: Color(0xFF383838),
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-
-                                  const SizedBox(height: 12),
-
-                                  Text(
-                                    pages[index]["subtitle"]!,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      color: Color(0xFFB2B2B2),
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-
-                                  const SizedBox(height: 40),
-
-                                  Image.asset(
-                                    pages[index]["image"]!,
-                                    fit: BoxFit.contain,
-                                  ),
-                                ],
-                              ),
+                              textAlign: TextAlign.center,
                             ),
-                          );
-                        },
-                      ),
 
-                      Positioned(
-                        left: 24,
-                        right: 24,
-                        bottom: 40,
-                        child: SizedBox(
-                          height: 64,
-                          child: ElevatedButton(
-                            style: ButtonStyle(
-                              foregroundColor: WidgetStateProperty.all(
-                                Colors.white,
+                            const SizedBox(height: 12),
+
+                            Text(
+                              pages[index]["subtitle"]!,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                color: Color(0xFFB2B2B2),
                               ),
-                              shape: WidgetStateProperty.all(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(24),
+                              textAlign: TextAlign.center,
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            Expanded(
+                              child: Center(
+                                child: Image.asset(
+                                  pages[index]["image"]!,
+                                  fit: BoxFit.contain,
                                 ),
                               ),
-                              backgroundColor: WidgetStateProperty.all(
-                                const Color(0xFF55A4FF),
-                              ),
-                              elevation: WidgetStateProperty.all(0),
                             ),
-                            onPressed: nextPage,
-                            child: Text(
-                              (_page >= 3) ? "Start" : "Continue",
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                          ),
+                          ],
                         ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 ),
               ],
+            ),
+          ),
+
+          Positioned(
+            left: 24,
+            right: 24,
+            bottom: 24,
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF55A4FF),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  elevation: 0,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                onPressed: nextPage,
+                child: Text(
+                  (_page >= 3) ? "Start" : "Continue",
+                  style: const TextStyle(fontSize: 18),
+                ),
+              ),
             ),
           ),
         ],

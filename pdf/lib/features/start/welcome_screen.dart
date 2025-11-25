@@ -9,6 +9,9 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final h = MediaQuery.of(context).size.height;
+    final w = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Colors.blueAccent,
       body: LiquidGlassLayer(
@@ -36,16 +39,18 @@ class WelcomeScreen extends StatelessWidget {
                       'Welcome to the',
                       style: TextStyle(
                         color: Color(0xFF383838),
-                        fontSize: 48,
-                        fontWeight: FontWeight.w500,
+                        fontSize: h * 0.06,
+                        fontWeight: FontWeight.w600,
+                        height: 1,
                       ),
                     ),
                     Text(
                       'PDF Me',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 64,
-                        fontWeight: FontWeight.w500,
+                        fontSize: h * 0.09,
+                        fontWeight: FontWeight.w600,
+                        height: 1,
                       ),
                     ),
                     const Spacer(),
@@ -56,8 +61,8 @@ class WelcomeScreen extends StatelessWidget {
                         LiquidGlass(
                           shape: LiquidRoundedSuperellipse(borderRadius: 30),
                           child: SizedBox(
-                            height: 81,
-                            width: 160,
+                            height: h * 0.10,
+                            width: w * 0.40,
                             child: Container(
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.15),
@@ -77,8 +82,8 @@ class WelcomeScreen extends StatelessWidget {
                         LiquidGlass(
                           shape: LiquidRoundedSuperellipse(borderRadius: 30),
                           child: SizedBox(
-                            height: 82,
-                            width: 239,
+                            height: h * 0.10,
+                            width: w * 0.55,
                             child: Container(
                               width: double.infinity,
                               decoration: BoxDecoration(
@@ -99,8 +104,8 @@ class WelcomeScreen extends StatelessWidget {
                         LiquidGlass(
                           shape: LiquidRoundedSuperellipse(borderRadius: 30),
                           child: SizedBox(
-                            height: 82,
-                            width: 321,
+                            height: h * 0.10,
+                            width: w * 0.80,
                             child: Container(
                               width: double.infinity,
                               decoration: BoxDecoration(
