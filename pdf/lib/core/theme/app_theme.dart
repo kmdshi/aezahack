@@ -6,6 +6,7 @@ class AppTheme {
     appBarTheme: AppBarTheme(
       centerTitle: false,
       elevation: 0,
+      scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       backgroundColor: Colors.white,
     ),

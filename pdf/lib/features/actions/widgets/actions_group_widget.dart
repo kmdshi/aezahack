@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pdf_app/features/files/widgets/edit_pdf_screen.dart';
+import 'package:pdf_app/features/files/widgets/scan_to_pdf_screen.dart';
 
 class ActionsGroupWidget extends StatefulWidget {
   const ActionsGroupWidget({super.key});
@@ -13,33 +16,20 @@ class _ActionsGroupWidgetState extends State<ActionsGroupWidget> {
     return Column(
       children: [
         GestureDetector(
-          onTap: () {},
+          onTap: () => Navigator.of(
+            context,
+          ).push(CupertinoPageRoute(builder: (_) => ScanToPdfScreen())),
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 18),
+            height: 120,
             decoration: BoxDecoration(
-              color: Color(0xFF55A4FF),
               borderRadius: BorderRadius.circular(18),
               border: Border.all(color: Colors.white.withOpacity(0.15)),
+              image: const DecorationImage(
+                image: AssetImage("assets/images/actions/scan1.png"),
+                fit: BoxFit.cover,
+              ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(
-                  Icons.document_scanner_outlined,
-                  size: 26,
-                  color: Colors.white,
-                ),
-                SizedBox(width: 10),
-                Text(
-                  "Scan to PDF",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
+            child: SizedBox.expand(),
           ),
         ),
 
@@ -49,31 +39,20 @@ class _ActionsGroupWidgetState extends State<ActionsGroupWidget> {
           children: [
             Expanded(
               child: GestureDetector(
-                onTap: () {},
-                child: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: Color(0xFFFFDD55),
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.15),
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.edit_document,
-                        size: 28,
-                        color: Colors.white,
-                      ),
+                onTap: () => Navigator.of(
+                  context,
+                ).push(CupertinoPageRoute(builder: (_) => EditPdfScreen())),
+                child: Container(
+                  height: 120,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: Colors.white.withOpacity(0.15)),
+                    image: const DecorationImage(
+                      image: AssetImage("assets/images/actions/edit.png"),
+                      fit: BoxFit.cover,
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      "Edit PDF",
-                      style: TextStyle(color: Colors.black, fontSize: 13),
-                    ),
-                  ],
+                  ),
+                  child: SizedBox.expand(),
                 ),
               ),
             ),
@@ -82,31 +61,20 @@ class _ActionsGroupWidgetState extends State<ActionsGroupWidget> {
 
             Expanded(
               child: GestureDetector(
-                onTap: () {},
-                child: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: Color(0xFF4EE046),
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.15),
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.swap_horizontal_circle_outlined,
-                        size: 28,
-                        color: Colors.white,
-                      ),
+                onTap: () => Navigator.of(
+                  context,
+                ).push(CupertinoPageRoute(builder: (_) => EditPdfScreen())),
+                child: Container(
+                  height: 120,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: Colors.white.withOpacity(0.15)),
+                    image: const DecorationImage(
+                      image: AssetImage("assets/images/actions/convert.png"),
+                      fit: BoxFit.cover,
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      "PDF Converter",
-                      style: TextStyle(color: Colors.black, fontSize: 13),
-                    ),
-                  ],
+                  ),
+                  child: const Center(child: SizedBox.expand()),
                 ),
               ),
             ),

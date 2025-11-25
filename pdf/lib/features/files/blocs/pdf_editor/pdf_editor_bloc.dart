@@ -1,0 +1,186 @@
+import 'dart:typed_data';
+import 'dart:ui';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:meta/meta.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:image/image.dart' as img;
+import 'package:pdfx/pdfx.dart' as pdfx;
+import 'dart:ui' as ui;
+
+part 'pdf_editor_event.dart';
+part 'pdf_editor_state.dart';
+
+class PdfEditorBloc extends Bloc<PdfEditorEvent, PdfEditorState> {
+  PdfEditorBloc() : super(PdfEditorInitial()) {
+    on<LoadPdfIdleEvent>(_idlePdf);
+    on<LoadPdfEvent>(_onLoadPdf);
+    on<ReorderPagesEvent>(_onReorder);
+    on<DeletePageEvent>(_onDelete);
+    on<RenamePdfEvent>(_onRename);
+    on<ExportPdfEvent>(_onExport);
+    on<CropPageEvent>(_onCropPage);
+  }
+
+  Future<void> _idlePdf(
+    LoadPdfIdleEvent event,
+    Emitter<PdfEditorState> emit,
+  ) async {
+    emit(PdfEditorInitial());
+  }
+
+  Future<void> _onCropPage(
+    CropPageEvent event,
+    Emitter<PdfEditorState> emit,
+  ) async {
+    final currentState = state;
+
+    if (currentState is! PdfEditorLoaded) return;
+
+    try {
+      final original = img.decodeImage(event.original);
+      if (original == null) {
+        emit(PdfEditorError("Не удалось декодировать страницу"));
+        return;
+      }
+
+      final x = event.cropRect.left.toInt();
+      final y = event.cropRect.top.toInt();
+      final w = event.cropRect.width.toInt();
+      final h = event.cropRect.height.toInt();
+
+      final safeX = x.clamp(0, original.width - 1);
+      final safeY = y.clamp(0, original.height - 1);
+      final safeW = w.clamp(1, original.width - safeX);
+      final safeH = h.clamp(1, original.height - safeY);
+
+      final cropped = img.copyCrop(
+        original,
+        x: safeX,
+        y: safeY,
+        width: safeW,
+        height: safeH,
+      );
+
+      final croppedBytes = Uint8List.fromList(img.encodePng(cropped));
+
+      final updatedPages = List<Uint8List>.from(currentState.pages);
+      updatedPages[event.index] = croppedBytes;
+
+      emit(
+        PdfEditorLoaded(pages: updatedPages, fileName: currentState.fileName),
+      );
+    } catch (e) {
+      emit(PdfEditorError("Ошибка при обрезке страницы: $e"));
+    }
+  }
+
+  Future<void> _onLoadPdf(
+    LoadPdfEvent event,
+    Emitter<PdfEditorState> emit,
+  ) async {
+    emit(PdfEditorLoading());
+
+    try {
+      final doc = await pdfx.PdfDocument.openData(event.pdfBytes);
+
+      final pages = <Uint8List>[];
+
+      for (int i = 1; i <= doc.pagesCount; i++) {
+        final page = await doc.getPage(i);
+
+        final rendered = await page.render(
+          width: page.width,
+          height: page.height,
+          format: pdfx.PdfPageImageFormat.png,
+        );
+
+        pages.add(rendered!.bytes);
+      }
+
+      emit(PdfEditorLoaded(pages: pages, fileName: event.fileName));
+    } catch (e) {
+      emit(PdfEditorError("Не удалось загрузить PDF: $e"));
+    }
+  }
+
+  Future<void> _onReorder(
+    ReorderPagesEvent event,
+    Emitter<PdfEditorState> emit,
+  ) async {
+    if (state is! PdfEditorLoaded) return;
+
+    final s = state as PdfEditorLoaded;
+    final pages = List<Uint8List>.from(s.pages);
+
+    final page = pages.removeAt(event.oldIndex);
+    pages.insert(event.newIndex, page);
+
+    emit(s.copyWith(pages: pages));
+  }
+
+  Future<void> _onDelete(
+    DeletePageEvent event,
+    Emitter<PdfEditorState> emit,
+  ) async {
+    if (state is! PdfEditorLoaded) return;
+
+    final s = state as PdfEditorLoaded;
+    final pages = List<Uint8List>.from(s.pages)..removeAt(event.index);
+
+    emit(s.copyWith(pages: pages));
+  }
+
+  Future<void> _onRename(
+    RenamePdfEvent event,
+    Emitter<PdfEditorState> emit,
+  ) async {
+    if (state is! PdfEditorLoaded) return;
+
+    final s = state as PdfEditorLoaded;
+
+    emit(s.copyWith(fileName: event.newName));
+  }
+
+  Future<void> _onExport(
+    ExportPdfEvent event,
+    Emitter<PdfEditorState> emit,
+  ) async {
+    if (state is! PdfEditorLoaded) return;
+
+    try {
+      final s = state as PdfEditorLoaded;
+      final pdf = pw.Document();
+
+      for (final pageImg in s.pages) {
+        final decoded = await _decodeImage(pageImg);
+
+        final w = decoded.width.toDouble();
+        final h = decoded.height.toDouble();
+
+        final img = pw.MemoryImage(pageImg);
+
+        pdf.addPage(
+          pw.Page(
+            pageFormat: PdfPageFormat(w, h),
+            margin: pw.EdgeInsets.zero,
+            build: (_) => pw.Image(img, fit: pw.BoxFit.fill),
+          ),
+        );
+      }
+
+      final bytes = await pdf.save();
+      emit(PdfExported(bytes));
+    } catch (e) {
+      emit(PdfEditorError("Ошибка экспорта PDF: $e"));
+    }
+  }
+
+  Future<ui.Image> _decodeImage(Uint8List bytes) async {
+    final buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
+    final descriptor = await ui.ImageDescriptor.encoded(buffer);
+    final codec = await descriptor.instantiateCodec();
+    final frame = await codec.getNextFrame();
+    return frame.image;
+  }
+}

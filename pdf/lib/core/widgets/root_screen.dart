@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
-import 'package:pdf/core/widgets/nav_bar.dart';
-import 'package:pdf/features/actions/widgets/screen.dart';
-import 'package:pdf/features/files/widgets/screen.dart';
-import 'package:pdf/features/settings/widgets/screen.dart';
-import 'package:pdf/features/signature/widgets/screen.dart';
+import 'package:pdf_app/core/widgets/nav_bar.dart';
+import 'package:pdf_app/features/actions/widgets/screen.dart';
+import 'package:pdf_app/features/files/widgets/screen.dart';
+import 'package:pdf_app/features/settings/widgets/screen.dart';
+import 'package:pdf_app/features/signature/widgets/screen.dart';
 
 class RootScreen extends StatefulWidget {
   const RootScreen({super.key});

@@ -1,4 +1,4 @@
-name: pdf
+name: pdf_app
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -38,6 +38,19 @@ dependencies:
   image_picker: ^1.2.1
   liquid_glass_renderer: ^0.2.0-dev.4
   flutter_svg: ^2.2.3
+  camera: ^0.11.3
+  crop_your_image: ^2.0.0
+  dio: ^5.9.0
+  path_provider: ^2.1.5
+  pdfx: ^2.9.2
+  pdf: ^3.11.3
+  google_mlkit_text_recognition: ^0.15.0
+  file_picker: ^10.3.7
+  smooth_page_indicator: ^1.2.1
+  dotted_border: ^3.1.0
+  reorderable_grid_view: ^2.2.8
+  syncfusion_flutter_signaturepad: ^31.2.12
+
 
 dev_dependencies:
   flutter_test:
@@ -63,9 +76,9 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/icons/
-
-
+    - assets/images/
+    - assets/images/start/
+    - assets/images/actions/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
@@ -77,10 +90,10 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
+  fonts:
+    - family: Schyler
+      fonts:
+        - asset: assets/fonts/Roboto/Roboto-Black.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro
