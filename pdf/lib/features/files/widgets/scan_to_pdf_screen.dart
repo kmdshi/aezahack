@@ -1,13 +1,17 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_doc_scanner/flutter_doc_scanner.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf_app/features/files/blocs/scan_to_pdf/scantopdf_bloc.dart';
 import 'package:pdf_app/features/files/widgets/crop_screen.dart';
 import 'package:pdfx/pdfx.dart';
@@ -457,12 +461,43 @@ class _ScanToPdfScreenState extends State<ScanToPdfScreen> {
   }
 
   Future<void> _takePhoto() async {
-    if (_camera == null || !_camera!.value.isInitialized) return;
+    try {
+      final result = await FlutterDocScanner().getScanDocuments(page: 4);
 
-    final file = await _camera!.takePicture();
-    final bytes = await file.readAsBytes();
+      if (result == null) return;
 
-    context.read<ScantopdfBloc>().add(TakePhotoEvent(bytes));
+      if (result is String && result.endsWith(".pdf")) {
+        final file = File(result);
+        final bytes = await file.readAsBytes();
+
+        context.read<ScantopdfBloc>().add(ScanFileReceivedEvent(bytes));
+        return;
+      }
+
+      if (result is List) {
+        final pdfBytes = await _convertIosImagesToPdf(result.cast<String>());
+
+        context.read<ScantopdfBloc>().add(ScanFileReceivedEvent(pdfBytes));
+        return;
+      }
+
+      print("Unknown scan format: $result");
+    } catch (e) {
+      print("Scan error: $e");
+    }
+  }
+
+  Future<Uint8List> _convertIosImagesToPdf(List<String> base64Images) async {
+    final pdf = pw.Document();
+
+    for (final img in base64Images) {
+      final bytes = base64Decode(img);
+      final image = pw.MemoryImage(bytes);
+
+      pdf.addPage(pw.Page(build: (_) => pw.Center(child: pw.Image(image))));
+    }
+
+    return pdf.save();
   }
 
   Future<void> _toggleFlash() async {

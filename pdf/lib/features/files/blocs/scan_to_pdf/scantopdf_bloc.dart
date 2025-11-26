@@ -15,6 +15,14 @@ class ScantopdfBloc extends Bloc<ScantopdfEvent, ScantopdfState> {
     on<CropPhotoEvent>(_onCropPhoto);
     on<MultiplePhotosPickedEvent>(_onMultiplePhotosPicked);
     on<CreatePdfEvent>(_onCreatePdf);
+    on<ScanFileReceivedEvent>(_onScanFileReceived);
+  }
+
+  Future<void> _onScanFileReceived(
+    ScanFileReceivedEvent event,
+    Emitter<ScantopdfState> emit,
+  ) async {
+    emit(PdfCreatedState(event.pdfBytes, 5));
   }
 
   Future<void> _onMultiplePhotosPicked(

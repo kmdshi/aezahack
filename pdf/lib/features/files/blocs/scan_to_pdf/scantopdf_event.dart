@@ -10,6 +10,11 @@ class TakePhotoEvent extends ScantopdfEvent {
   TakePhotoEvent(this.bytes);
 }
 
+class ScanFileReceivedEvent extends ScantopdfEvent {
+  final Uint8List pdfBytes;
+  ScanFileReceivedEvent(this.pdfBytes);
+}
+
 class CropPhotoEvent extends ScantopdfEvent {
   final Uint8List bytes;
   CropPhotoEvent(this.bytes);
