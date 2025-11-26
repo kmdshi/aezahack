@@ -8,19 +8,15 @@ final class PdfEditorInitial extends PdfEditorState {}
 final class PdfEditorLoading extends PdfEditorState {}
 
 final class PdfEditorLoaded extends PdfEditorState {
-  final List<Uint8List> pages; 
+  final Uint8List? pdfBytes;
+  final List<Uint8List> pages;
   final String fileName;
 
-  PdfEditorLoaded({
-    required this.pages,
-    required this.fileName,
-  });
+  PdfEditorLoaded({this.pdfBytes, required this.pages, required this.fileName});
 
-  PdfEditorLoaded copyWith({
-    List<Uint8List>? pages,
-    String? fileName,
-  }) {
+  PdfEditorLoaded copyWith({Uint8List? pdfBytes, List<Uint8List>? pages, String? fileName}) {
     return PdfEditorLoaded(
+      pdfBytes: pdfBytes ?? this.pdfBytes,
       pages: pages ?? this.pages,
       fileName: fileName ?? this.fileName,
     );
@@ -29,8 +25,9 @@ final class PdfEditorLoaded extends PdfEditorState {
 
 final class PdfExported extends PdfEditorState {
   final Uint8List pdfBytes;
+  final String? filename;
 
-  PdfExported(this.pdfBytes);
+  PdfExported(this.pdfBytes, this.filename);
 }
 
 final class PdfEditorError extends PdfEditorState {

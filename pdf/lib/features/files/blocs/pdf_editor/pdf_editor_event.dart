@@ -8,9 +8,15 @@ final class LoadPdfIdleEvent extends PdfEditorEvent {}
 final class LoadPdfEvent extends PdfEditorEvent {
   final Uint8List pdfBytes;
   final String fileName;
-
-  LoadPdfEvent({required this.pdfBytes, required this.fileName});
+  final String savedPath;
+  LoadPdfEvent({required this.pdfBytes, required this.fileName, required this.savedPath});
 }
+
+class LoadPdfFromPathEvent extends PdfEditorEvent {
+  final String path;
+  LoadPdfFromPathEvent(this.path);
+}
+
 
 final class ReorderPagesEvent extends PdfEditorEvent {
   final int oldIndex;
@@ -49,4 +55,18 @@ final class AddPageEvent extends PdfEditorEvent {
   final Uint8List imageBytes;
 
   AddPageEvent(this.imageBytes);
+}
+
+class CopyPageEvent extends PdfEditorEvent {
+  final int index;
+
+  CopyPageEvent(this.index);
+}
+
+class AddSignatureEvent extends PdfEditorEvent {
+  final Uint8List signature;
+
+  AddSignatureEvent({
+    required this.signature,
+  });
 }

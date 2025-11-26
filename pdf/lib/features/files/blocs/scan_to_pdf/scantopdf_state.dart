@@ -19,5 +19,6 @@ class PhotoCroppedState extends ScantopdfState {
 
 class PdfCreatedState extends ScantopdfState {
   final Uint8List pdfBytes;
-  PdfCreatedState(this.pdfBytes);
+  final int pages;
+  PdfCreatedState(this.pdfBytes, this.pages);
 }

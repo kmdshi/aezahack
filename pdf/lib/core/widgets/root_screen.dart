@@ -20,7 +20,7 @@ class _RootScreenState extends State<RootScreen> {
 
   final List<Widget> _screens = [
     const ActionsScreen(),
-    const FilesScreen(),
+    // const FilesScreen(),
     const SingScreen(),
     const SettingsScreen(),
   ];
@@ -66,23 +66,23 @@ class _RootScreenState extends State<RootScreen> {
                           index: 0,
                           text: 'Actions',
                         ),
-                        SizedBox(width: 10),
-                        _navItem(
-                          asset: 'assets/images/icons/files_i.svg',
-                          index: 1,
-                          text: 'Files',
-                        ),
+                        // SizedBox(width: 10),
+                        // _navItem(
+                        //   asset: 'assets/images/icons/files_i.svg',
+                        //   index: 1,
+                        //   text: 'Files',
+                        // ),
                         SizedBox(width: 10),
 
                         _navItem(
                           asset: 'assets/images/icons/sign_i.svg',
-                          index: 2,
+                          index: 1,
                           text: 'Signature',
                         ),
                         SizedBox(width: 10),
                         _navItem(
                           asset: 'assets/images/icons/settings_i.svg',
-                          index: 3,
+                          index: 2,
                           text: 'Settings',
                         ),
                       ],
@@ -93,7 +93,7 @@ class _RootScreenState extends State<RootScreen> {
                 GestureDetector(
                   onTap: () {
                     switch (_index) {
-                      case (2):
+                      case (1):
                         Navigator.of(context).push(
                           CupertinoPageRoute(
                             builder: (_) => NewSignatureScreen(),
@@ -189,11 +189,11 @@ class _RootScreenState extends State<RootScreen> {
     switch (index) {
       case 0:
         return const Color(0xFF55A4FF);
+      // case 1:
+      //   return const Color(0xFFF5D142);
       case 1:
-        return const Color(0xFFF5D142);
-      case 2:
         return const Color(0xFF4EE046);
-      case 3:
+      case 2:
         return const Color(0xFFFF81BE);
       default:
         return const Color(0xFF5D5D5D);

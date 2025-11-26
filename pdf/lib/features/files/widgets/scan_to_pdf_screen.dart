@@ -1,13 +1,19 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:camera/camera.dart';
+import 'package:dotted_border/dotted_border.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf_app/features/files/blocs/scan_to_pdf/scantopdf_bloc.dart';
 import 'package:pdf_app/features/files/widgets/crop_screen.dart';
 import 'package:pdfx/pdfx.dart';
+import 'package:path/path.dart' as p;
+
+final cur = ValueNotifier(0);
 
 class ScanToPdfScreen extends StatefulWidget {
   const ScanToPdfScreen({super.key});
@@ -47,182 +53,405 @@ class _ScanToPdfScreenState extends State<ScanToPdfScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: const Text("Scan to PDF"),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-      ),
-
-      body: BlocBuilder<ScantopdfBloc, ScantopdfState>(
-        builder: (context, state) {
-          if (state is CameraReadyState) {
-            return Stack(
-              children: [
-                Positioned.fill(
-                  child: FutureBuilder(
-                    future: _initCameraFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done &&
-                          _camera != null &&
-                          _camera!.value.isInitialized) {
-                        return CameraPreview(_camera!);
-                      }
-                      return const Center(child: CircularProgressIndicator());
-                    },
+      body: SafeArea(
+        child: BlocBuilder<ScantopdfBloc, ScantopdfState>(
+          builder: (context, state) {
+            if (state is CameraReadyState) {
+              return Stack(
+                children: [
+                  Positioned.fill(
+                    child: FutureBuilder(
+                      future: _initCameraFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done &&
+                            _camera != null &&
+                            _camera!.value.isInitialized) {
+                          return CameraPreview(_camera!);
+                        }
+                        return const Center(child: CircularProgressIndicator());
+                      },
+                    ),
                   ),
-                ),
 
-                Positioned(
-                  bottom: 32,
-                  left: 0,
-                  right: 0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FloatingActionButton(
-                        heroTag: "gallery_btn",
-                        backgroundColor: Colors.grey.shade800,
-                        onPressed: _pickFromGallery,
-                        child: const Icon(Icons.photo_library, size: 26),
+                  Positioned(
+                    top: 16,
+                    left: 0,
+                    right: 0,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          LiquidGlassLayer(
+                            settings: LiquidGlassSettings(
+                              glassColor: Colors.white,
+                            ),
+                            child: LiquidGlass(
+                              shape: LiquidRoundedSuperellipse(
+                                borderRadius: 100,
+                              ),
+                              child: SizedBox(
+                                width: 62,
+                                height: 62,
+                                child: IconButton(
+                                  icon: const Icon(
+                                    CupertinoIcons.xmark,
+                                    size: 24,
+                                    color: Color(0xFF383838),
+                                  ),
+                                  onPressed: () => Navigator.pop(context),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Spacer(),
+                          Text(
+                            'SCAN TO PDF',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Spacer(),
+                        ],
                       ),
+                    ),
+                  ),
 
-                      const SizedBox(width: 32),
-
-                      FloatingActionButton.large(
-                        heroTag: "camera_btn",
-                        backgroundColor: Colors.blue,
-                        onPressed: _takePhoto,
-                        child: const Icon(Icons.camera_alt, size: 32),
-                      ),
-
-                      const SizedBox(width: 32),
-
-                      FloatingActionButton(
-                        heroTag: "flash_btn",
-                        backgroundColor: Colors.grey.shade800,
-                        onPressed: _toggleFlash,
-                        child: Icon(
-                          _flashOn ? Icons.flash_on : Icons.flash_off,
-                          size: 26,
-                          color: _flashOn ? Colors.yellow : Colors.white,
+                  Positioned(
+                    bottom: 32,
+                    left: 0,
+                    right: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        LiquidGlassLayer(
+                          child: LiquidGlass(
+                            shape: LiquidRoundedSuperellipse(borderRadius: 100),
+                            child: InkWell(
+                              onTap: _pickFromGallery,
+                              borderRadius: BorderRadius.circular(50),
+                              child: Container(
+                                width: 70,
+                                height: 70,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: const Icon(
+                                    Icons.photo_library,
+                                    size: 26,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 32),
+
+                        InkWell(
+                          onTap: _takePhoto,
+                          borderRadius: BorderRadius.circular(50),
+                          child: Container(
+                            width: 90,
+                            height: 90,
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: SvgPicture.asset(
+                                'assets/images/icons/scan.svg',
+                                width: 32,
+                                height: 32,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 32),
+
+                        LiquidGlassLayer(
+                          child: LiquidGlass(
+                            shape: LiquidRoundedSuperellipse(borderRadius: 100),
+                            child: InkWell(
+                              onTap: _toggleFlash,
+                              borderRadius: BorderRadius.circular(50),
+                              child: Container(
+                                width: 70,
+                                height: 70,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Icon(
+                                    _flashOn
+                                        ? CupertinoIcons.sun_max
+                                        : CupertinoIcons.sun_min,
+                                    size: 26,
+                                    color: _flashOn
+                                        ? Colors.yellow
+                                        : Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            );
-          }
+                ],
+              );
+            }
 
-          if (state is PhotoTakenState) {
-            return CustomCropScreen(image: state.bytes);
-          }
+            if (state is PhotoTakenState) {
+              return CustomCropScreen(image: state.bytes);
+            }
 
-          if (state is PhotoCroppedState) {
-            return Column(
-              children: [
-                Expanded(child: Image.memory(state.bytes)),
-                Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          final pdfBytes = Uint8List(10);
-                          context.read<ScantopdfBloc>().add(
-                            CreatePdfEvent(pdfBytes),
-                          );
-                        },
-                        icon: const Icon(Icons.document_scanner),
-                        label: const Text("Сканировать в PDF"),
-                      ),
-                      const SizedBox(width: 16),
-                      TextButton(
-                        onPressed: () {
-                          context.read<ScantopdfBloc>().add(InitCameraEvent());
-                        },
-                        child: const Text("Новое фото"),
-                      ),
-                    ],
+            if (state is PdfCreatedState) {
+              final controller = PdfController(
+                document: PdfDocument.openData(state.pdfBytes),
+              );
+
+              int count = state.pages;
+              return Stack(
+                children: [
+                  Positioned.fill(
+                    child: SvgPicture.asset(
+                      'assets/images/bg_line.svg',
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-              ],
-            );
-          }
 
-          if (state is PdfCreatedState) {
-            final controller = PdfController(
-              document: PdfDocument.openData(state.pdfBytes),
-            );
+                  Positioned(
+                    top: 16,
+                    left: 0,
+                    right: 0,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          LiquidGlassLayer(
+                            settings: LiquidGlassSettings(
+                              glassColor: Colors.white,
+                              blur: 200,
+                              thickness: 200,
+                            ),
+                            child: LiquidGlass(
+                              shape: LiquidRoundedSuperellipse(
+                                borderRadius: 100,
+                              ),
+                              child: SizedBox(
+                                width: 62,
+                                height: 62,
+                                child: IconButton(
+                                  icon: const Icon(
+                                    CupertinoIcons.xmark,
+                                    size: 24,
+                                    color: Color(0xFF383838),
+                                  ),
+                                  onPressed: () => Navigator.pop(context),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Spacer(),
+                          Text(
+                            'SCAN TO PDF',
+                            style: TextStyle(
+                              color: Color(0xFF383838),
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Spacer(),
+                          LiquidGlassLayer(
+                            settings: LiquidGlassSettings(
+                              glassColor: Colors.white,
+                              blur: 200,
+                              thickness: 200,
+                            ),
+                            child: LiquidGlass(
+                              shape: LiquidRoundedSuperellipse(
+                                borderRadius: 100,
+                              ),
+                              child: SizedBox(
+                                width: 62,
+                                height: 62,
 
-            return Stack(
-              children: [
-                Positioned.fill(
-                  child: PdfView(
-                    controller: controller,
-                    scrollDirection: Axis.vertical,
+                                child: IconButton(
+                                  icon: const Icon(
+                                    CupertinoIcons.add,
+                                    size: 24,
+                                    color: Color(0xFF55A4FF),
+                                  ),
+                                  onPressed: () {},
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 12),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
 
-                Positioned(
-                  bottom: 32,
-                  left: 0,
-                  right: 0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FloatingActionButton(
-                        heroTag: "share_pdf_btn",
-                        backgroundColor: Colors.grey.shade800,
-                        onPressed: () {},
-                        child: const Icon(Icons.share, size: 26),
-                      ),
-
-                      const SizedBox(width: 32),
-
-                      FloatingActionButton.large(
-                        heroTag: "save_pdf_btn",
-                        backgroundColor: Colors.blue,
-                        onPressed: () async {
-                          final bytes = state.pdfBytes;
-
-                          final dir = await getApplicationDocumentsDirectory();
-                          final path =
-                              "${dir.path}/scan_${DateTime.now().millisecondsSinceEpoch}.pdf";
-
-                          final file = File(path);
-                          await file.writeAsBytes(bytes);
-
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("PDF сохранён: $path")),
-                            );
-                          }
-                        },
-                        child: const Icon(Icons.download, size: 32),
-                      ),
-
-                      const SizedBox(width: 32),
-
-                      FloatingActionButton(
-                        heroTag: "add_page_btn",
-                        backgroundColor: Colors.grey.shade800,
-                        onPressed: () {
-                          context.read<ScantopdfBloc>().add(InitCameraEvent());
-                        },
-                        child: const Icon(Icons.add_a_photo, size: 26),
-                      ),
-                    ],
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        DottedBorder(
+                          child: SizedBox(
+                            height: 435,
+                            width: 322,
+                            child: PdfView(
+                              onPageChanged: (page) {
+                                cur.value = page;
+                              },
+                              controller: controller,
+                              scrollDirection: Axis.horizontal,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        CustomPageIndicator(count: count),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            );
-          }
 
-          return const Center(child: CircularProgressIndicator());
-        },
+                  Positioned(
+                    bottom: 32,
+                    left: 0,
+                    right: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        LiquidGlassLayer(
+                          settings: LiquidGlassSettings(
+                            glassColor: Colors.white,
+                            blur: 200,
+                            thickness: 200,
+                          ),
+                          child: LiquidGlass(
+                            shape: LiquidRoundedSuperellipse(borderRadius: 100),
+                            child: InkWell(
+                              onTap: () {},
+                              borderRadius: BorderRadius.circular(50),
+                              child: Container(
+                                width: 70,
+                                height: 70,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: SvgPicture.asset(
+                                    'assets/images/icons/share.svg',
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 32),
+
+                        InkWell(
+                          onTap: () async {
+                            final bytes = state.pdfBytes;
+                            String path;
+                            if (Platform.isAndroid) {
+                              final dir = await getDownloadsDirectory();
+                              path = p.join(
+                                dir!.path,
+                                'scan_${DateTime.now().millisecondsSinceEpoch}.pdf',
+                              );
+                            } else if (Platform.isIOS) {
+                              final dir =
+                                  await getApplicationDocumentsDirectory();
+                              path = p.join(
+                                dir.path,
+                                'scan_${DateTime.now().millisecondsSinceEpoch}.pdf',
+                              );
+                            } else {
+                              final dir =
+                                  await getApplicationDocumentsDirectory();
+                              path = p.join(
+                                dir.path,
+                                'scan_${DateTime.now().millisecondsSinceEpoch}.pdf',
+                              );
+                            }
+                            final file = File(path);
+                            await file.writeAsBytes(bytes);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("PDF сохранён: $path")),
+                              );
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(50),
+                          child: Container(
+                            width: 90,
+                            height: 90,
+                            decoration: BoxDecoration(
+                              color: Color(0xFF55A4FF),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: SvgPicture.asset(
+                                'assets/images/icons/download.svg',
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 32),
+
+                        LiquidGlassLayer(
+                          settings: LiquidGlassSettings(
+                            glassColor: Colors.white,
+                            blur: 200,
+                            thickness: 200,
+                          ),
+                          child: LiquidGlass(
+                            shape: LiquidRoundedSuperellipse(borderRadius: 100),
+                            child: InkWell(
+                              onTap: () {
+                                context.read<ScantopdfBloc>().add(
+                                  InitCameraEvent(),
+                                );
+                              },
+                              borderRadius: BorderRadius.circular(50),
+                              child: Container(
+                                width: 70,
+                                height: 70,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: SvgPicture.asset(
+                                    'assets/images/icons/add.svg',
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            }
+
+            return const Center(child: CircularProgressIndicator());
+          },
+        ),
       ),
     );
   }
@@ -248,12 +477,51 @@ class _ScanToPdfScreenState extends State<ScanToPdfScreen> {
 
   Future<void> _pickFromGallery() async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
 
-    if (picked == null) return;
+    final pickedFiles = await picker.pickMultiImage();
 
-    final bytes = await picked.readAsBytes();
+    if (pickedFiles == null || pickedFiles.isEmpty) return;
 
-    context.read<ScantopdfBloc>().add(TakePhotoEvent(bytes));
+    if (pickedFiles.length > 1) {
+      final bytesList = await Future.wait(
+        pickedFiles.map((picked) => picked.readAsBytes()),
+      );
+
+      context.read<ScantopdfBloc>().add(MultiplePhotosPickedEvent(bytesList));
+    } else {
+      final bytes = await pickedFiles.first.readAsBytes();
+      context.read<ScantopdfBloc>().add(TakePhotoEvent(bytes));
+    }
+  }
+}
+
+class CustomPageIndicator extends StatelessWidget {
+  final int count;
+
+  const CustomPageIndicator({super.key, required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: cur,
+      builder: (context, value, child) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            count,
+            (index) => AnimatedContainer(
+              duration: Duration(milliseconds: 300),
+              margin: EdgeInsets.symmetric(horizontal: 5),
+              height: 12,
+              width: 12,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: value == index + 1 ? Colors.blue : Colors.grey,
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

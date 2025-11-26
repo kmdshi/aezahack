@@ -19,7 +19,6 @@ class _FilesScreenState extends State<FilesScreen> {
     _loadFolders();
   }
 
-  // Загрузка списка папок из SharedPreferences
   _loadFolders() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -27,7 +26,6 @@ class _FilesScreenState extends State<FilesScreen> {
     });
   }
 
-  // Добавление новой папки
   _addFolder() async {
     if (_folderController.text.isEmpty) return;
 
@@ -39,7 +37,6 @@ class _FilesScreenState extends State<FilesScreen> {
     _folderController.clear();
   }
 
-  // Поиск папки по имени
   _searchFolder(String query) {
     return _folders
         .where((folder) => folder.toLowerCase().contains(query.toLowerCase()))

@@ -1,12 +1,18 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:ios_color_picker/show_ios_color_picker.dart';
+import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
+import 'package:pdf_app/core/services/notifier.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signature/signature.dart';
+
+enum ToolType { draw, size, color, erase }
 
 class NewSignatureScreen extends StatefulWidget {
   final Uint8List? savedSignature;
@@ -24,6 +30,7 @@ class _SignatureScreenState extends State<NewSignatureScreen> {
   Uint8List? _savedSignature;
   int signatureCounter = 0;
   TextEditingController _nameController = TextEditingController();
+  ToolType _activeTool = ToolType.draw;
 
   @override
   void initState() {
@@ -63,8 +70,8 @@ class _SignatureScreenState extends State<NewSignatureScreen> {
 
     String fileName = _nameController.text.trim();
     await prefs.setString("signature_name_$signatureCounter", fileName);
-
-    Navigator.pop(context, true);
+    GlobalStreamController.notify();
+    Navigator.pop(context);
   }
 
   @override
@@ -158,9 +165,12 @@ class _SignatureScreenState extends State<NewSignatureScreen> {
                           fit: BoxFit.contain,
                         ),
                       )
-                    : Signature(
-                        controller: _controller,
-                        backgroundColor: Colors.transparent,
+                    : IgnorePointer(
+                        ignoring: _activeTool != ToolType.draw,
+                        child: Signature(
+                          controller: _controller,
+                          backgroundColor: Colors.transparent,
+                        ),
                       ),
               ),
 
@@ -169,21 +179,79 @@ class _SignatureScreenState extends State<NewSignatureScreen> {
                 left: 16,
                 right: 16,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildIconButton('assets/images/icons/color.svg', () {
-                      iosColorPickerController.showIOSCustomColorPicker(
-                        onColorChanged: (value) {
-                          setState(() => _penColor = value);
-                          _createController();
-                        },
-                        context: context,
-                      );
-                    }),
+                    _buildIconButton(
+                      _activeTool == ToolType.draw,
+                      'assets/images/icons/draw.svg',
+                      () {
+                        setState(() => _activeTool = ToolType.draw);
+                      },
+                    ),
+                    SizedBox(width: 10),
+                    _buildIconButton(
+                      _activeTool == ToolType.size,
+                      'assets/images/icons/line_i.svg',
+                      () {
+                        setState(() {
+                          _activeTool = ToolType.size;
+                          _openStrokePicker();
+                        });
+                      },
+                    ),
+                    SizedBox(width: 10),
+                    _buildIconButton(
+                      _activeTool == ToolType.color,
+                      'assets/images/icons/color_i.svg',
+                      () {
+                        setState(() {
+                          _activeTool = ToolType.color;
+                        });
+                        Platform.isIOS
+                            ? iosColorPickerController.showNativeIosColorPicker(
+                                darkMode: true,
+                                onColorChanged: (color) {
+                                  setState(() {
+                                    _penColor = color;
+                                  });
+                                  _createController();
+                                },
+                              )
+                            : iosColorPickerController.showIOSCustomColorPicker(
+                                onColorChanged: (color) {
+                                  setState(() {
+                                    _penColor = color;
+                                    _createController();
+                                  });
+                                },
+                                context: context,
+                              );
+                      },
+                    ),
+                    SizedBox(width: 10),
+                    _buildIconButton(
+                      _activeTool == ToolType.erase,
+                      'assets/images/icons/erse_i.svg',
+                      () {
+                        setState(() {
+                          _activeTool = ToolType.erase;
+                        });
+                        _controller.clear();
+                      },
+                    ),
 
-                    _buildIconButton('assets/images/icons/stroke.svg', () {
-                      _openStrokePicker();
-                    }),
+                    // _buildIconButton('assets/images/icons/color.svg', () {
+                    //   iosColorPickerController.showIOSCustomColorPicker(
+                    //     onColorChanged: (value) {
+                    //       setState(() => _penColor = value);
+                    //       _createController();
+                    //     },
+                    //     context: context,
+                    //   );
+                    // }),
+                    // SizedBox(width: 10),
+                    // _buildIconButton('assets/images/icons/stroke.svg', () {
+                    //   _openStrokePicker();
+                    // }),
                   ],
                 ),
               ),
@@ -212,50 +280,72 @@ class _SignatureScreenState extends State<NewSignatureScreen> {
     }
   }
 
-  ButtonStyle _btn({Color bg = const Color(0xFFDDDDDD)}) {
-    return ElevatedButton.styleFrom(
-      backgroundColor: bg,
-      foregroundColor: Colors.black,
-      elevation: 0,
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    );
-  }
-
   void _createController() {
     try {
       _controller.dispose();
     } catch (_) {}
+
     _controller = SignatureController(
       penStrokeWidth: _penStroke,
       penColor: _penColor,
-      exportBackgroundColor: Colors.white,
+      exportBackgroundColor: Colors.transparent,
     );
   }
 }
 
-Widget _buildIconButton(String iconPath, VoidCallback onPressed) {
-  return Container(
-    width: 62,
-    height: 62,
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-    ),
-    child: InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: SvgPicture.asset(
-          iconPath,
-          width: 42,
-          height: 42,
-          fit: BoxFit.contain,
-        ),
-      ),
-    ),
-  );
+Widget _buildIconButton(
+  bool isActive,
+  String iconPath,
+  VoidCallback onPressed,
+) {
+  return isActive
+      ? Container(
+          width: 62,
+          height: 62,
+          decoration: BoxDecoration(
+            color: const Color(0xFF55A4FF),
+            borderRadius: BorderRadius.circular(100),
+          ),
+          child: InkWell(
+            onTap: onPressed,
+            borderRadius: BorderRadius.circular(100),
+            child: Center(
+              child: SvgPicture.asset(
+                iconPath,
+                width: 24,
+                height: 24,
+                fit: BoxFit.contain,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        )
+      : LiquidGlassLayer(
+          settings: LiquidGlassSettings(glassColor: Colors.white),
+          child: LiquidGlass(
+            shape: LiquidRoundedSuperellipse(borderRadius: 100),
+            child: Container(
+              width: 62,
+              height: 62,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+              ),
+              child: InkWell(
+                onTap: onPressed,
+                borderRadius: BorderRadius.circular(100),
+                child: Center(
+                  child: SvgPicture.asset(
+                    iconPath,
+                    width: 24,
+                    height: 24,
+                    fit: BoxFit.contain,
+                    color: const Color(0xFF5D5D5D),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
 }
 
 class _StrokePickerSheet extends StatefulWidget {

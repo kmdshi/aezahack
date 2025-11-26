@@ -15,6 +15,11 @@ class CropPhotoEvent extends ScantopdfEvent {
   CropPhotoEvent(this.bytes);
 }
 
+class MultiplePhotosPickedEvent extends ScantopdfEvent {
+  final List<Uint8List> bytesList;
+  MultiplePhotosPickedEvent(this.bytesList);
+}
+
 class CreatePdfEvent extends ScantopdfEvent {
   final Uint8List pdfBytes;
   CreatePdfEvent(this.pdfBytes);

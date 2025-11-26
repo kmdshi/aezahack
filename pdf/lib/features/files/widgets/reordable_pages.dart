@@ -4,6 +4,8 @@ import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:pdf_app/features/files/blocs/pdf_editor/pdf_editor_bloc.dart';
 
 class ReorderPagesScreen extends StatelessWidget {
+  const ReorderPagesScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
