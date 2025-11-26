@@ -1,0 +1,26 @@
+name: flutter_wa_skeleton
+description: "A base app"
+publish_to: "none"
+
+version: 0.1.1+1
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+
+dependency_overrides:
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    # - assets/vectors/
