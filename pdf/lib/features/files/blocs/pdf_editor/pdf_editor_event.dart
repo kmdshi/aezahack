@@ -9,7 +9,11 @@ final class LoadPdfEvent extends PdfEditorEvent {
   final Uint8List pdfBytes;
   final String fileName;
   final String savedPath;
-  LoadPdfEvent({required this.pdfBytes, required this.fileName, required this.savedPath});
+  LoadPdfEvent({
+    required this.pdfBytes,
+    required this.fileName,
+    required this.savedPath,
+  });
 }
 
 class LoadPdfFromPathEvent extends PdfEditorEvent {
@@ -17,12 +21,10 @@ class LoadPdfFromPathEvent extends PdfEditorEvent {
   LoadPdfFromPathEvent(this.path);
 }
 
-
 final class ReorderPagesEvent extends PdfEditorEvent {
-  final int oldIndex;
-  final int newIndex;
+  final List<Uint8List> pages;
 
-  ReorderPagesEvent(this.oldIndex, this.newIndex);
+  ReorderPagesEvent(this.pages);
 }
 
 final class DeletePageEvent extends PdfEditorEvent {
@@ -66,7 +68,5 @@ class CopyPageEvent extends PdfEditorEvent {
 class AddSignatureEvent extends PdfEditorEvent {
   final Uint8List signature;
 
-  AddSignatureEvent({
-    required this.signature,
-  });
+  AddSignatureEvent({required this.signature});
 }

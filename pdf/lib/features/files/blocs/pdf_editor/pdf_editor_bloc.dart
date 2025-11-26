@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
-import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:pdf/pdf.dart';
@@ -253,10 +252,8 @@ class PdfEditorBloc extends Bloc<PdfEditorEvent, PdfEditorState> {
     if (state is! PdfEditorLoaded) return;
 
     final s = state as PdfEditorLoaded;
-    final pages = List<Uint8List>.from(s.pages);
+    final pages = List<Uint8List>.from(event.pages);
 
-    final page = pages.removeAt(event.oldIndex);
-    pages.insert(event.newIndex, page);
     final updatedPdf = await _rebuildPdfFromPages(pages);
 
     emit(s.copyWith(pdfBytes: updatedPdf, pages: pages));
