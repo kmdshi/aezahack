@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pdf_app/core/services/files_history.dart';
+import 'package:pdf_app/core/services/notifier.dart';
 import 'package:pdf_app/features/actions/widgets/actions_group_widget.dart';
 import 'package:pdf_app/features/files/blocs/pdf_editor/pdf_editor_bloc.dart';
 import 'package:pdf_app/features/files/widgets/edit_pdf_screen.dart';
@@ -21,7 +22,9 @@ class _ActionsScreenState extends State<ActionsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadRecentFiles();
+    GlobalStreamController.stream.listen((_) {
+      _loadRecentFiles();
+    });
   }
 
   Future<void> _loadRecentFiles() async {

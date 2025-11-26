@@ -11,6 +11,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf_app/core/services/files_history.dart';
+import 'package:pdf_app/core/services/notifier.dart';
 import 'package:pdf_app/features/files/blocs/pdf_editor/pdf_editor_bloc.dart';
 import 'package:pdf_app/features/files/widgets/button_set_widget.dart';
 import 'package:pdf_app/features/files/widgets/reordable_pages.dart';
@@ -82,6 +83,7 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
             ),
           ),
           Scaffold(
+            resizeToAvoidBottomInset: false,
             body: BlocBuilder<PdfEditorBloc, PdfEditorState>(
               builder: (context, state) {
                 if (state is PdfEditorInitial) {
@@ -524,6 +526,7 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
 
     final savedPath = await savePdfToLocal(name, bytes);
     RecentFilesService.add(savedPath);
+    GlobalStreamController.notify();
 
     context.read<PdfEditorBloc>().add(
       LoadPdfEvent(pdfBytes: bytes, fileName: name, savedPath: savedPath),
@@ -537,8 +540,8 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
   ) async {
     String finalFileName = fileNameController.text;
 
-    final downloadDir = await getExternalStorageDirectory();
-    final path = "${downloadDir!.path}/$finalFileName.pdf";
+    final downloadDir = await getApplicationDocumentsDirectory();
+    final path = "${downloadDir.path}/$finalFileName.pdf";
 
     final file = File(path);
     await file.writeAsBytes(bytes);
@@ -550,14 +553,15 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
 
     await RecentFilesService.add(savedPath);
 
+    GlobalStreamController.notify();
     setState(() {
       fileNameController.text = 'Edit PDF';
     });
   }
 
   Future<String> savePdfToLocal(String name, Uint8List bytes) async {
-    final downloadDir = await getExternalStorageDirectory();
-    final path = "${downloadDir!.path}/$name.pdf";
+    final downloadDir = await getApplicationDocumentsDirectory();
+    final path = "${downloadDir.path}/$name.pdf";
 
     final file = File(path);
     print(path);

@@ -462,7 +462,7 @@ class _ScanToPdfScreenState extends State<ScanToPdfScreen> {
 
   Future<void> _takePhoto() async {
     try {
-      final result = await FlutterDocScanner().getScanDocuments(page: 4);
+      final result = await FlutterDocScanner().getScanDocuments(page: 1);
 
       if (result == null) return;
 
@@ -487,14 +487,20 @@ class _ScanToPdfScreenState extends State<ScanToPdfScreen> {
     }
   }
 
-  Future<Uint8List> _convertIosImagesToPdf(List<String> base64Images) async {
+  Future<Uint8List> _convertIosImagesToPdf(List<String> paths) async {
     final pdf = pw.Document();
 
-    for (final img in base64Images) {
-      final bytes = base64Decode(img);
+    for (final path in paths) {
+      final file = File.fromUri(Uri.file(path));
+      final bytes = await file.readAsBytes();
       final image = pw.MemoryImage(bytes);
 
-      pdf.addPage(pw.Page(build: (_) => pw.Center(child: pw.Image(image))));
+      pdf.addPage(
+        pw.Page(
+          build: (_) =>
+              pw.Center(child: pw.Image(image, fit: pw.BoxFit.contain)),
+        ),
+      );
     }
 
     return pdf.save();

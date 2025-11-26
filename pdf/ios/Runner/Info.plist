@@ -26,6 +26,12 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>NSDocumentPickerUsageDescription</key>
+	<string>This app needs folder access to read files.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Нужно для OCR</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

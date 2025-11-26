@@ -22,7 +22,7 @@ class ScantopdfBloc extends Bloc<ScantopdfEvent, ScantopdfState> {
     ScanFileReceivedEvent event,
     Emitter<ScantopdfState> emit,
   ) async {
-    emit(PdfCreatedState(event.pdfBytes, 5));
+    emit(PdfCreatedState(event.pdfBytes, 1));
   }
 
   Future<void> _onMultiplePhotosPicked(
