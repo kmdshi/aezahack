@@ -16,7 +16,13 @@ enum ToolType { draw, size, color, erase }
 
 class NewSignatureScreen extends StatefulWidget {
   final Uint8List? savedSignature;
-  const NewSignatureScreen({super.key, this.savedSignature});
+  final int? savedSignatureId;
+
+  const NewSignatureScreen({
+    super.key,
+    this.savedSignature,
+    this.savedSignatureId,
+  });
 
   @override
   State<NewSignatureScreen> createState() => _SignatureScreenState();
@@ -29,29 +35,46 @@ class _SignatureScreenState extends State<NewSignatureScreen> {
   double _penStroke = 3.0;
   Uint8List? _savedSignature;
   int signatureCounter = 0;
-  TextEditingController _nameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   ToolType _activeTool = ToolType.draw;
+
+  int? currentId;
 
   @override
   void initState() {
     super.initState();
+
     _savedSignature = widget.savedSignature;
+    currentId = widget.savedSignatureId;
 
     _controller = SignatureController(
       penColor: _penColor,
       penStrokeWidth: _penStroke,
+      exportBackgroundColor: Colors.transparent,
     );
-    _loadCounter();
+
+    _loadCounterAndName();
   }
 
-  Future<void> _loadCounter() async {
+  @override
+  void dispose() {
+    _controller.dispose();
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadCounterAndName() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       signatureCounter = prefs.getInt("signature_counter") ?? 0;
-
-      String? savedName = prefs.getString("signature_name_$signatureCounter");
-      _nameController.text = savedName ?? '';
     });
+
+    if (currentId != null) {
+      final savedName = prefs.getString("signature_name_$currentId");
+      _nameController.text = savedName ?? 'signature_$currentId';
+    } else {
+      _nameController.text = '';
+    }
   }
 
   Future<void> _saveSignature() async {
@@ -62,16 +85,66 @@ class _SignatureScreenState extends State<NewSignatureScreen> {
 
     final prefs = await SharedPreferences.getInstance();
 
-    signatureCounter++;
+    if (currentId != null) {
+      await prefs.setString("signature_$currentId", base64Encode(data));
+    } else {
+      signatureCounter++;
+      final id = signatureCounter;
 
-    await prefs.setString("signature_$signatureCounter", base64Encode(data));
+      await prefs.setString("signature_$id", base64Encode(data));
+      await prefs.setInt("signature_counter", signatureCounter);
 
-    await prefs.setInt("signature_counter", signatureCounter);
+      currentId = id;
+    }
 
-    String fileName = _nameController.text.trim();
-    await prefs.setString("signature_name_$signatureCounter", fileName);
     GlobalStreamController.notify();
-    Navigator.pop(context);
+    Navigator.pop(context, true);
+  }
+
+  Future<void> _confirmAndDeleteSignature() async {
+    if (currentId == null) return;
+
+    final should = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (c) => CupertinoAlertDialog(
+        title: const Text('Delete signature?'),
+        content: const Text('Are you sure you want to delete this signature?'),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(c, false),
+            child: const Text('Cancel'),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => Navigator.pop(c, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (should == true) {
+      await deleteSignature(currentId!);
+      Navigator.pop(context, true);
+    }
+  }
+
+  Future<void> deleteSignature(int id) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove("signature_$id");
+
+    GlobalStreamController.notify();
+  }
+
+  void _applyPenSettings() {
+    try {
+      _controller.dispose();
+    } catch (_) {}
+    _controller = SignatureController(
+      penStrokeWidth: _penStroke,
+      penColor: _penColor,
+      exportBackgroundColor: Colors.transparent,
+    );
   }
 
   @override
@@ -80,7 +153,6 @@ class _SignatureScreenState extends State<NewSignatureScreen> {
       onPopInvokedWithResult: (didPop, result) => setState(() {}),
       child: Scaffold(
         backgroundColor: const Color(0xFFF5F6FA),
-
         body: SafeArea(
           child: Stack(
             children: [
@@ -112,46 +184,47 @@ class _SignatureScreenState extends State<NewSignatureScreen> {
                           onPressed: () => Navigator.pop(context),
                         ),
                       ),
-
-                      Spacer(),
-
+                      const Spacer(),
                       Expanded(
                         child: TextField(
                           controller: _nameController,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             hintText: 'Enter signature name',
                             border: InputBorder.none,
-                            hintStyle: TextStyle(color: Color(0xFF383838)),
                           ),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 32,
                             color: Color(0xFF383838),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
                         ),
                         child: IconButton(
-                          icon: const Icon(
-                            CupertinoIcons.check_mark,
+                          icon: Icon(
+                            _savedSignature == null
+                                ? CupertinoIcons.check_mark
+                                : CupertinoIcons.delete,
                             size: 24,
-                            color: Color(0xFF383838),
+                            color: _savedSignature == null
+                                ? const Color(0xFF383838)
+                                : Colors.red,
                           ),
-                          onPressed: _saveSignature,
+                          onPressed: _savedSignature == null
+                              ? _saveSignature
+                              : _confirmAndDeleteSignature,
                         ),
                       ),
-
                       const SizedBox(width: 12),
                     ],
                   ),
                 ),
               ),
-
               Positioned(
                 top: 80,
                 left: 0,
@@ -173,7 +246,6 @@ class _SignatureScreenState extends State<NewSignatureScreen> {
                         ),
                       ),
               ),
-
               Positioned(
                 bottom: 20,
                 left: 16,
@@ -187,18 +259,18 @@ class _SignatureScreenState extends State<NewSignatureScreen> {
                         setState(() => _activeTool = ToolType.draw);
                       },
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     _buildIconButton(
                       _activeTool == ToolType.size,
                       'assets/images/icons/line_i.svg',
                       () {
                         setState(() {
                           _activeTool = ToolType.size;
-                          _openStrokePicker();
                         });
+                        _openStrokePicker();
                       },
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     _buildIconButton(
                       _activeTool == ToolType.color,
                       'assets/images/icons/color_i.svg',
@@ -212,22 +284,22 @@ class _SignatureScreenState extends State<NewSignatureScreen> {
                                 onColorChanged: (color) {
                                   setState(() {
                                     _penColor = color;
+                                    _applyPenSettings();
                                   });
-                                  _createController();
                                 },
                               )
                             : iosColorPickerController.showIOSCustomColorPicker(
                                 onColorChanged: (color) {
                                   setState(() {
                                     _penColor = color;
-                                    _createController();
+                                    _applyPenSettings();
                                   });
                                 },
                                 context: context,
                               );
                       },
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     _buildIconButton(
                       _activeTool == ToolType.erase,
                       'assets/images/icons/erse_i.svg',
@@ -235,23 +307,31 @@ class _SignatureScreenState extends State<NewSignatureScreen> {
                         setState(() {
                           _activeTool = ToolType.erase;
                         });
-                        _controller.clear();
+                        // лучше показывать подтверждение очистки, чем очищать сразу:
+                        showDialog<bool>(
+                          context: context,
+                          builder: (c) => AlertDialog(
+                            title: const Text('Clear drawing?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(c, false),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  _controller.clear();
+                                  Navigator.pop(c, true);
+                                },
+                                child: const Text(
+                                  'Clear',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
                       },
                     ),
-
-                    // _buildIconButton('assets/images/icons/color.svg', () {
-                    //   iosColorPickerController.showIOSCustomColorPicker(
-                    //     onColorChanged: (value) {
-                    //       setState(() => _penColor = value);
-                    //       _createController();
-                    //     },
-                    //     context: context,
-                    //   );
-                    // }),
-                    // SizedBox(width: 10),
-                    // _buildIconButton('assets/images/icons/stroke.svg', () {
-                    //   _openStrokePicker();
-                    // }),
                   ],
                 ),
               ),
@@ -275,21 +355,9 @@ class _SignatureScreenState extends State<NewSignatureScreen> {
     if (result != null) {
       setState(() {
         _penStroke = result;
-        _createController();
+        _applyPenSettings();
       });
     }
-  }
-
-  void _createController() {
-    try {
-      _controller.dispose();
-    } catch (_) {}
-
-    _controller = SignatureController(
-      penStrokeWidth: _penStroke,
-      penColor: _penColor,
-      exportBackgroundColor: Colors.transparent,
-    );
   }
 }
 

@@ -7,13 +7,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void showSignatureSelector({
   required BuildContext context,
-  required Function(Uint8List) onSignatureSelected,
+  required Function(Uint8List, int) onSignatureSelected,
 }) {
   showModalBottomSheet(
     backgroundColor: Colors.white,
     context: context,
     builder: (context) {
-      return FutureBuilder<List<Uint8List>>(
+      return FutureBuilder<List<SignatureItem>>(
         future: _loadSavedSignatures(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -42,18 +42,22 @@ void showSignatureSelector({
                   children: [
                     SignatureListWidget(
                       title: "Favourite signatures",
-                      signatures: signatures,
-                      onSignatureTap: (sign) {
-                        onSignatureSelected(sign);
+                      signatures: signatures.map((e) => e.bytes).toList(),
+                      onSignatureTap: (sign, index) {
+                        final realId = signatures[index].id;
+
+                        onSignatureSelected(sign, realId);
                         Navigator.pop(context);
                       },
                     ),
                     SizedBox(height: 10),
                     SignatureListWidget(
                       title: "Recent signatures",
-                      signatures: signatures,
-                      onSignatureTap: (sign) {
-                        onSignatureSelected(sign);
+                      signatures: signatures.map((e) => e.bytes).toList(),
+                      onSignatureTap: (sign, index) {
+                        final realId = signatures[index].id;
+
+                        onSignatureSelected(sign, realId);
                         Navigator.pop(context);
                       },
                     ),
@@ -68,17 +72,27 @@ void showSignatureSelector({
   );
 }
 
-Future<List<Uint8List>> _loadSavedSignatures() async {
+Future<List<SignatureItem>> _loadSavedSignatures() async {
   final prefs = await SharedPreferences.getInstance();
   final signatureCount = prefs.getInt('signature_counter') ?? 0;
-  final List<Uint8List> signatures = [];
 
-  for (int i = 0; i <= signatureCount; i++) {
-    String? signatureBase64 = prefs.getString('signature_$i');
-    if (signatureBase64 != null) {
-      signatures.add(Uint8List.fromList(base64Decode(signatureBase64)));
+  final List<SignatureItem> signatures = [];
+
+  for (int i = 1; i <= signatureCount; i++) {
+    final base64Str = prefs.getString('signature_$i');
+    if (base64Str != null) {
+      signatures.add(
+        SignatureItem(i, Uint8List.fromList(base64Decode(base64Str))),
+      );
     }
   }
 
   return signatures;
+}
+
+class SignatureItem {
+  final int id;
+  final Uint8List bytes;
+
+  SignatureItem(this.id, this.bytes);
 }

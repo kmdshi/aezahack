@@ -58,9 +58,7 @@ class _PdfConverterScreenState extends State<PdfConverterScreen> {
     if (isAllImages) {
       final files = paths.map((p) => File(p)).toList();
 
-      context.read<PdfConverterBloc>().add(
-        ConvertMultipleImagesEvent(files),
-      ); 
+      context.read<PdfConverterBloc>().add(ConvertMultipleImagesEvent(files));
       setState(() {});
       return;
     }
@@ -111,7 +109,7 @@ class _PdfConverterScreenState extends State<PdfConverterScreen> {
                     ),
                     const Spacer(),
                     const Text(
-                      'PDF Converter',
+                      'Conv',
                       style: TextStyle(
                         fontSize: 26,
                         color: Color(0xFF383838),

@@ -104,7 +104,7 @@ class _RootScreenState extends State<RootScreen> {
                     glassContainsChild: true,
                     shape: LiquidRoundedSuperellipse(borderRadius: 100),
                     child: Container(
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(30),
                       child: !(_index == 1 || _index == 2)
                           ? SvgPicture.asset(
                               'assets/images/icons/scan.svg',
@@ -142,6 +142,7 @@ class _RootScreenState extends State<RootScreen> {
           ? LiquidGlass(
               shape: LiquidRoundedSuperellipse(borderRadius: 40),
               child: Container(
+                padding: EdgeInsets.all(8),
                 key: ValueKey('active_$index'),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

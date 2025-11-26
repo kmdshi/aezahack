@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class SignatureListWidget extends StatelessWidget {
   final String title;
   final List<Uint8List> signatures;
-  final Function(Uint8List) onSignatureTap;
+  final Function(Uint8List, int) onSignatureTap;
 
   const SignatureListWidget({
     super.key,
@@ -51,7 +51,7 @@ class SignatureListWidget extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final signature = signatures[index];
                   return InkWell(
-                    onTap: () => onSignatureTap(signature),
+                    onTap: () => onSignatureTap(signature, index),
                     child: Container(
                       width: 120,
                       margin: const EdgeInsets.only(right: 12),

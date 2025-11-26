@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pdf_app/features/prem/screen.dart';
+import 'package:pdf_app/main.dart';
+import 'package:share_plus/share_plus.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -67,34 +71,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child: Container(
-                          height: 148,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(24),
-                            image: const DecorationImage(
-                              image: AssetImage("assets/images/prem/terms.png"),
-                              fit: BoxFit.cover,
+                        child: InkWell(
+                          onTap: terms,
+                          child: Container(
+                            height: 148,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24),
+                              image: const DecorationImage(
+                                image: AssetImage(
+                                  "assets/images/prem/terms.png",
+                                ),
+                                fit: BoxFit.cover,
+                              ),
                             ),
+                            alignment: Alignment.center,
+                            child: SizedBox.expand(),
                           ),
-                          alignment: Alignment.center,
-                          child: SizedBox.expand(),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Container(
-                          height: 148,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(24),
-                            image: const DecorationImage(
-                              image: AssetImage(
-                                "assets/images/prem/policy.png",
+                        child: InkWell(
+                          onTap: privacy,
+                          child: Container(
+                            height: 148,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24),
+                              image: const DecorationImage(
+                                image: AssetImage(
+                                  "assets/images/prem/policy.png",
+                                ),
+                                fit: BoxFit.cover,
                               ),
-                              fit: BoxFit.cover,
                             ),
+                            alignment: Alignment.center,
+                            child: SizedBox.expand(),
                           ),
-                          alignment: Alignment.center,
-                          child: SizedBox.expand(),
                         ),
                       ),
                     ],
@@ -102,23 +114,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                   const SizedBox(height: 12),
 
-                  Container(
-                    height: 112,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      image: const DecorationImage(
-                        image: AssetImage("assets/images/prem/share.png"),
-                        fit: BoxFit.cover,
+                  InkWell(
+                    onTap: shareApp,
+                    child: Container(
+                      height: 112,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        image: const DecorationImage(
+                          image: AssetImage("assets/images/prem/share.png"),
+                          fit: BoxFit.cover,
+                        ),
                       ),
+                      alignment: Alignment.center,
+                      child: SizedBox.expand(),
                     ),
-                    alignment: Alignment.center,
-                    child: SizedBox.expand(),
                   ),
                 ],
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void shareApp() {
+    const androidLink =
+        'https://play.google.com/store/apps/details?id=com.my.app';
+    const iosLink = 'https://apps.apple.com/app/id0000000000';
+
+    final link = Platform.isIOS ? iosLink : androidLink;
+
+    SharePlus.instance.share(
+      ShareParams(
+        title: 'Все работает!',
+        subject: 'Ставь максимальный балл скорее<3',
+        uri: Uri.parse(link),
       ),
     );
   }

@@ -464,7 +464,7 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                                   showSignatureSelector(
                                     context: context,
                                     onSignatureSelected:
-                                        (Uint8List selectedSignature) {
+                                        (Uint8List selectedSignature, _) {
                                           context.read<PdfEditorBloc>().add(
                                             AddSignatureEvent(
                                               signature: selectedSignature,
