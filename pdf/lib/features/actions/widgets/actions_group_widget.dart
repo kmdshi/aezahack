@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf_app/features/files/widgets/edit_pdf_screen.dart';
+import 'package:pdf_app/features/files/widgets/pdf_converter_screen.dart';
 import 'package:pdf_app/features/files/widgets/scan_to_pdf_screen.dart';
 
 class ActionsGroupWidget extends StatefulWidget {
@@ -61,9 +62,9 @@ class _ActionsGroupWidgetState extends State<ActionsGroupWidget> {
 
             Expanded(
               child: GestureDetector(
-                onTap: () => Navigator.of(
-                  context,
-                ).push(CupertinoPageRoute(builder: (_) => EditPdfScreen())),
+                onTap: () => Navigator.of(context).push(
+                  CupertinoPageRoute(builder: (_) => PdfConverterScreen()),
+                ),
                 child: Container(
                   height: 120,
                   decoration: BoxDecoration(

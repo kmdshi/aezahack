@@ -6,8 +6,8 @@
     <application
         android:label="pdf"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
-
+        android:icon="@mipmap/ic_launcher"
+        android:requestLegacyExternalStorage="true" >
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"

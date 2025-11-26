@@ -56,6 +56,7 @@ dependencies:
   syncfusion_flutter_pdf: ^31.2.15
   dio: ^5.9.0
   flutter_doc_scanner: ^0.0.16
+  archive: ^4.0.7
 
 
 dev_dependencies:

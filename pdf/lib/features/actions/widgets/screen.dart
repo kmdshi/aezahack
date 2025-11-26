@@ -64,10 +64,6 @@ class _ActionsScreenState extends State<ActionsScreen> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.search),
-                      ),
                     ],
                   ),
 

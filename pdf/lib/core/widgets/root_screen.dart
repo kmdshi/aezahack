@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:pdf_app/features/actions/widgets/screen.dart';
-import 'package:pdf_app/features/files/widgets/screen.dart';
 import 'package:pdf_app/features/settings/widgets/screen.dart';
 import 'package:pdf_app/features/signature/widgets/create_new_sign.dart';
 import 'package:pdf_app/features/signature/widgets/sign_screen.dart';
