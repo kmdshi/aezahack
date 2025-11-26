@@ -58,9 +58,7 @@ class _PdfConverterScreenState extends State<PdfConverterScreen> {
     if (isAllImages) {
       final files = paths.map((p) => File(p)).toList();
 
-      context.read<PdfConverterBloc>().add(
-        ConvertMultipleImagesEvent(files),
-      ); 
+      context.read<PdfConverterBloc>().add(ConvertMultipleImagesEvent(files));
       setState(() {});
       return;
     }
@@ -276,9 +274,17 @@ Future<String> saveImagesAsZip(List<Uint8List> images) async {
 
   final zipData = ZipEncoder().encode(archive);
 
-  final downloads = await getDownloadsDirectory();
+  Directory dir;
+
+  if (Platform.isIOS) {
+    dir = await getApplicationDocumentsDirectory();
+  } else {
+    dir =
+        (await getDownloadsDirectory()) ??
+        await getApplicationDocumentsDirectory();
+  }
   final savePath =
-      "${downloads!.path}/converted_${DateTime.now().millisecondsSinceEpoch}.zip";
+      "${dir.path}/converted_${DateTime.now().millisecondsSinceEpoch}.zip";
 
   final file = File(savePath);
   await file.writeAsBytes(zipData);
