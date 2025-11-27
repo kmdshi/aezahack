@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:pdf_app/features/start/onboarding_screen.dart';
+import 'package:pdf_app/main.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -134,7 +135,7 @@ class WelcomeScreen extends StatelessWidget {
                                 child: SizedBox(
                                   height: 48,
                                   child: ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: terms,
                                     style: ButtonStyle(
                                       backgroundColor: WidgetStateProperty.all(
                                         Colors.transparent,
@@ -174,7 +175,7 @@ class WelcomeScreen extends StatelessWidget {
                                 child: SizedBox(
                                   height: 48,
                                   child: ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: privacy,
                                     style: ButtonStyle(
                                       backgroundColor: WidgetStateProperty.all(
                                         Colors.transparent,

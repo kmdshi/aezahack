@@ -20,6 +20,14 @@ class _ReorderPagesScreenState extends State<ReorderPagesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final w = size.width;
+    final h = size.height;
+
+    final double topBtn = w * 0.15; // 62 → адапт.
+    final double topPadding = h * 0.015;
+    final double pagePadding = w * 0.03;
+
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -30,52 +38,63 @@ class _ReorderPagesScreenState extends State<ReorderPagesScreen> {
                 fit: BoxFit.cover,
               ),
             ),
+
+            /// ---- TOP BAR ----
             Positioned(
-              top: 0,
+              top: topPadding,
               left: 0,
               right: 0,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: w * 0.04),
                 child: Row(
                   children: [
+                    // CLOSE BUTTON
                     LiquidGlassLayer(
                       settings: LiquidGlassSettings(glassColor: Colors.white),
                       child: LiquidGlass(
-                        shape: LiquidRoundedSuperellipse(borderRadius: 100),
+                        shape: LiquidRoundedSuperellipse(borderRadius: 200),
                         child: SizedBox(
-                          width: 62,
-                          height: 62,
+                          width: topBtn,
+                          height: topBtn,
                           child: IconButton(
-                            icon: const Icon(
+                            icon: Icon(
                               CupertinoIcons.xmark,
-                              size: 24,
-                              color: Color(0xFF383838),
+                              size: w * 0.07,
+                              color: const Color(0xFF383838),
                             ),
                             onPressed: () => Navigator.pop(context),
                           ),
                         ),
                       ),
                     ),
-                    Spacer(),
+
+                    const Spacer(),
+
+                    // TITLE
                     Text(
                       'Reorder',
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 24,
+                        fontSize: w * 0.065,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    Spacer(),
+
+                    const Spacer(),
+
+                    // CHECK BUTTON
                     LiquidGlassLayer(
                       settings: LiquidGlassSettings(glassColor: Colors.white),
                       child: LiquidGlass(
-                        shape: LiquidRoundedSuperellipse(borderRadius: 100),
+                        shape: LiquidRoundedSuperellipse(borderRadius: 200),
                         child: SizedBox(
-                          width: 62,
-                          height: 62,
+                          width: topBtn,
+                          height: topBtn,
                           child: IconButton(
                             icon: SvgPicture.asset(
                               'assets/images/icons/check.svg',
+                              width: w * 0.06,
+                              height: w * 0.06,
                             ),
                             onPressed: () {
                               context.read<PdfEditorBloc>().add(
@@ -91,8 +110,10 @@ class _ReorderPagesScreenState extends State<ReorderPagesScreen> {
                 ),
               ),
             ),
+
+            /// ---- GRID ----
             Positioned(
-              top: 80,
+              top: topBtn + h * 0.04,
               left: 0,
               right: 0,
               bottom: 0,
@@ -106,17 +127,19 @@ class _ReorderPagesScreenState extends State<ReorderPagesScreen> {
                     _localPages = List.from(state.pages);
                   }
 
+                  /// Количество колонок адаптивное:
+                  int crossAxis = w < 380 ? 2 : (w < 700 ? 3 : 4);
+
                   return Padding(
-                    padding: const EdgeInsets.all(12.0),
+                    padding: EdgeInsets.all(pagePadding),
                     child: ReorderableGridView.builder(
                       itemCount: _localPages.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 0,
-                            crossAxisSpacing: 15,
-                            childAspectRatio: 0.7,
-                          ),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxis,
+                        mainAxisSpacing: w * 0.04,
+                        crossAxisSpacing: w * 0.04,
+                        childAspectRatio: 0.68,
+                      ),
                       onReorder: (oldIndex, newIndex) {
                         setState(() {
                           final movedPage = _localPages.removeAt(oldIndex);
@@ -124,6 +147,8 @@ class _ReorderPagesScreenState extends State<ReorderPagesScreen> {
                         });
                       },
                       itemBuilder: (_, index) {
+                        final numberSize = w * 0.09;
+
                         return Stack(
                           key: ValueKey(index),
                           clipBehavior: Clip.none,
@@ -133,30 +158,36 @@ class _ReorderPagesScreenState extends State<ReorderPagesScreen> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding: EdgeInsets.all(w * 0.02),
                                 child: Image.memory(
                                   _localPages[index],
                                   fit: BoxFit.contain,
                                 ),
                               ),
                             ),
+
+                            /// NUMBER CIRCLE
                             Positioned(
-                              top: 8,
-                              right: -10,
+                              top: w * 0.02,
+                              right: -w * 0.03,
                               child: Container(
-                                width: 36,
-                                height: 36,
+                                width: numberSize,
+                                height: numberSize,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.black),
+                                  border: Border.all(
+                                    color: Colors.black,
+                                    width: 1,
+                                  ),
+                                  color: Colors.white,
                                 ),
                                 child: Center(
                                   child: Text(
-                                    (index + 1).toString(),
+                                    "${index + 1}",
                                     style: TextStyle(
-                                      color: Color(0xFF55A4FF),
+                                      fontSize: w * 0.045,
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                      color: const Color(0xFF55A4FF),
                                     ),
                                   ),
                                 ),

@@ -18,20 +18,28 @@ class ButtonSetWidget extends StatefulWidget {
 class _ButtonSetWidgetState extends State<ButtonSetWidget> {
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+
+    final double btnSize = w * 0.15;
+    final double centerBtn = w * 0.20;
+    final double spacing = w * 0.02;
+    final double topOffset = w * 0.22;
+    final double totalSize = w * 0.7;
+
     return SizedBox(
-      width: 300,
-      height: 300,
+      width: totalSize,
+      height: totalSize,
       child: Stack(
         alignment: Alignment.center,
         children: [
           Positioned(
-            bottom: 90,
+            bottom: topOffset,
             child: GestureDetector(
               onTap: () => widget.onSurroundingButtonTap(1),
               child: Container(
-                width: 62,
-                height: 62,
-                decoration: BoxDecoration(
+                width: btnSize,
+                height: btnSize,
+                decoration: const BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage('assets/images/re_b.png'),
                     fit: BoxFit.cover,
@@ -40,18 +48,17 @@ class _ButtonSetWidgetState extends State<ButtonSetWidget> {
               ),
             ),
           ),
+
           Positioned(
             bottom: 0,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 GestureDetector(
                   onTap: () => widget.onSurroundingButtonTap(2),
-
                   child: Container(
-                    width: 62,
-                    height: 62,
-                    decoration: BoxDecoration(
+                    width: btnSize,
+                    height: btnSize,
+                    decoration: const BoxDecoration(
                       image: DecorationImage(
                         image: AssetImage('assets/images/ers_b.png'),
                         fit: BoxFit.cover,
@@ -59,14 +66,15 @@ class _ButtonSetWidgetState extends State<ButtonSetWidget> {
                     ),
                   ),
                 ),
-                SizedBox(width: 5),
+
+                SizedBox(width: spacing),
+
                 GestureDetector(
                   onTap: () => widget.onSurroundingButtonTap(3),
-
                   child: Container(
-                    width: 62,
-                    height: 62,
-                    decoration: BoxDecoration(
+                    width: btnSize,
+                    height: btnSize,
+                    decoration: const BoxDecoration(
                       image: DecorationImage(
                         image: AssetImage('assets/images/cut_b.png'),
                         fit: BoxFit.cover,
@@ -74,35 +82,37 @@ class _ButtonSetWidgetState extends State<ButtonSetWidget> {
                     ),
                   ),
                 ),
-                SizedBox(width: 5),
+
+                SizedBox(width: spacing),
 
                 GestureDetector(
                   onTap: widget.onCenterButtonTap,
                   child: Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
+                    width: centerBtn,
+                    height: centerBtn,
+                    decoration: const BoxDecoration(
                       color: Colors.blue,
                       shape: BoxShape.circle,
                     ),
                     child: Center(
                       child: SvgPicture.asset(
                         'assets/images/icons/add.svg',
-                        fit: BoxFit.cover,
+                        width: centerBtn * 0.45,
+                        height: centerBtn * 0.45,
                         color: Colors.white,
                       ),
                     ),
                   ),
                 ),
-                SizedBox(width: 5),
+
+                SizedBox(width: spacing),
 
                 GestureDetector(
                   onTap: () => widget.onSurroundingButtonTap(4),
-
                   child: Container(
-                    width: 62,
-                    height: 62,
-                    decoration: BoxDecoration(
+                    width: btnSize,
+                    height: btnSize,
+                    decoration: const BoxDecoration(
                       image: DecorationImage(
                         image: AssetImage('assets/images/copy_b.png'),
                         fit: BoxFit.cover,
@@ -110,14 +120,15 @@ class _ButtonSetWidgetState extends State<ButtonSetWidget> {
                     ),
                   ),
                 ),
-                SizedBox(width: 5),
+
+                SizedBox(width: spacing),
 
                 GestureDetector(
                   onTap: () => widget.onSurroundingButtonTap(5),
                   child: Container(
-                    width: 62,
-                    height: 62,
-                    decoration: BoxDecoration(
+                    width: btnSize,
+                    height: btnSize,
+                    decoration: const BoxDecoration(
                       image: DecorationImage(
                         image: AssetImage('assets/images/sign_b.png'),
                         fit: BoxFit.cover,

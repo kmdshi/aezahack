@@ -17,6 +17,7 @@ import 'package:pdf_app/features/files/widgets/button_set_widget.dart';
 import 'package:pdf_app/features/files/widgets/reordable_pages.dart';
 import 'package:pdf_app/features/files/widgets/signatures_bottom.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:toastification/toastification.dart';
 
 class EditPdfScreen extends StatefulWidget {
   const EditPdfScreen({super.key});
@@ -56,14 +57,19 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    final h = MediaQuery.of(context).size.height;
+
     return BlocListener<PdfEditorBloc, PdfEditorState>(
       listener: (context, state) async {
         if (state is PdfExported) {
           await _savePdf(state.pdfBytes, state.filename, oldName);
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("PDF успешно сохранён!")),
+          toastification.show(
+            type: ToastificationType.success,
+            title: Text("PDF успешно сохранён."),
+            autoCloseDuration: Duration(seconds: 3),
           );
+
           context.read<PdfEditorBloc>().add(LoadPdfIdleEvent());
         } else if (state is PdfEditorLoaded) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -113,12 +119,12 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                                       borderRadius: 100,
                                     ),
                                     child: SizedBox(
-                                      width: 62,
-                                      height: 62,
+                                      width: w * 0.16,
+                                      height: w * 0.16,
                                       child: IconButton(
-                                        icon: const Icon(
+                                        icon: Icon(
                                           CupertinoIcons.xmark,
-                                          size: 24,
+                                          size: w * 0.07,
                                           color: Color(0xFF383838),
                                         ),
                                         onPressed: () {
@@ -128,23 +134,22 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                                     ),
                                   ),
                                 ),
-                                Spacer(),
                                 Expanded(
                                   child: TextField(
+                                    textAlign: TextAlign.center,
                                     readOnly:
                                         fileNameController.text == 'Edit PDF',
                                     controller: fileNameController,
                                     decoration: const InputDecoration(
                                       border: InputBorder.none,
                                     ),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: Colors.black,
-                                      fontSize: 18,
+                                      fontSize: w * 0.055,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ),
-                                Spacer(),
                                 LiquidGlassLayer(
                                   settings: LiquidGlassSettings(
                                     glassColor: Colors.white,
@@ -154,8 +159,8 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                                       borderRadius: 100,
                                     ),
                                     child: SizedBox(
-                                      width: 62,
-                                      height: 62,
+                                      width: w * 0.16,
+                                      height: w * 0.16,
                                       child: IconButton(
                                         icon: SvgPicture.asset(
                                           'assets/images/icons/check.svg',
@@ -178,8 +183,8 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                         Center(
                           child: Container(
                             alignment: Alignment.center,
-                            height: 435,
-                            width: 322,
+                            height: h * 0.5,
+                            width: w * 0.8,
                             decoration: BoxDecoration(
                               image: DecorationImage(
                                 image: AssetImage(
@@ -197,8 +202,8 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                           child: InkWell(
                             onTap: _pickPdf,
                             child: Container(
-                              width: 90,
-                              height: 90,
+                              width: w * 0.22,
+                              height: w * 0.22,
                               decoration: BoxDecoration(
                                 color: Color(0xFF55A4FF),
                                 shape: BoxShape.circle,
@@ -206,8 +211,8 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                               child: SvgPicture.asset(
                                 'assets/images/icons/import.svg',
                                 fit: BoxFit.scaleDown,
-                                width: 32,
-                                height: 32,
+                                width: w * 0.09,
+                                height: w * 0.09,
                               ),
                             ),
                           ),
@@ -335,11 +340,11 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                           top: 80,
                           left: 0,
                           right: 0,
-                          height: MediaQuery.sizeOf(context).height * 0.6,
+                          height: h * 0.6,
                           child: Column(
                             children: [
                               SizedBox(
-                                height: MediaQuery.sizeOf(context).height * 0.6,
+                                height: h * 0.55,
                                 child: PageView.builder(
                                   controller: _pageController,
                                   itemCount: state.pages.length,
@@ -347,7 +352,7 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                                     final page = state.pages[index];
 
                                     return Padding(
-                                      padding: const EdgeInsets.all(16),
+                                      padding: EdgeInsets.all(w * 0.04),
                                       child: DottedBorder(
                                         child: Container(
                                           child:
@@ -358,10 +363,10 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                                                   initialRectBuilder:
                                                       InitialRectBuilder.withArea(
                                                         Rect.fromLTWH(
-                                                          100,
-                                                          200,
-                                                          500,
-                                                          400,
+                                                          w * 0.15,
+                                                          h * 0.20,
+                                                          w * 0.7,
+                                                          h * 0.25,
                                                         ),
                                                       ),
                                                   onMoved:
@@ -419,7 +424,7 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                           ),
                         ),
                         Positioned(
-                          bottom: 50,
+                          bottom: h * 0.02,
                           left: 0,
                           right: 0,
                           child: ButtonSetWidget(
@@ -464,7 +469,7 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                                   showSignatureSelector(
                                     context: context,
                                     onSignatureSelected:
-                                        (Uint8List selectedSignature) {
+                                        (Uint8List selectedSignature, _) {
                                           context.read<PdfEditorBloc>().add(
                                             AddSignatureEvent(
                                               signature: selectedSignature,
@@ -477,17 +482,20 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                           ),
                         ),
                         Positioned(
-                          top: MediaQuery.sizeOf(context).height * 0.7,
+                          top: MediaQuery.sizeOf(context).height * 0.64,
                           left: 0,
                           right: 0,
                           child: Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
+                            padding: EdgeInsets.only(bottom: h * 0.03),
                             child: Align(
                               alignment: Alignment.bottomCenter,
                               child: SmoothPageIndicator(
                                 controller: _pageController,
                                 count: state.pages.length,
-                                effect: WormEffect(dotHeight: 12, dotWidth: 12),
+                                effect: WormEffect(
+                                  dotHeight: w * 0.03,
+                                  dotWidth: w * 0.03,
+                                ),
                               ),
                             ),
                           ),
