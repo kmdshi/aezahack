@@ -1,34 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'screens/onboarding_screen.dart';
+import 'package:fast_pdf/core/widgets/app.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-void main() {
-  runApp(MyApp());
+privacy() {
+  launchUrl(
+    Uri.parse(
+      'https://docs.google.com/document/d/1dZBRwz6RAPKlCr8Vx_lv_RBnfNuaZ0sQjYZYWlUX4wA/edit?usp=sharing',
+    ),
+  );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+terms() {
+  launchUrl(
+    Uri.parse(
+      'https://docs.google.com/document/d/17O-9eCc3wivaRSKnaqeB6S7ltSEPsmSf1hQjZe5k7GA/edit?usp=sharing',
+    ),
+  );
+}
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'PDF Scanner',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF1C1C1E),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF1C1C1E),
-          foregroundColor: Colors.white,
-          elevation: 0,
-          systemOverlayStyle: SystemUiOverlayStyle.light,
-        ),
-        primaryColor: const Color(0xFF007AFF),
-        bottomSheetTheme: const BottomSheetThemeData(
-          backgroundColor: Color(0xFF2C2C2E),
-          modalBackgroundColor: Color(0xFF2C2C2E),
-        ),
-      ),
-      home: const OnboardingScreen(),
-    );
-  }
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
+
+  runApp(const App());
 }

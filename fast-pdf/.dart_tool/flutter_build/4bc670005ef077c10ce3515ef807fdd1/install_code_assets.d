@@ -1,0 +1,1 @@
+ /Users/bgdan/Desktop/fast-pdf/.dart_tool/flutter_build/4bc670005ef077c10ce3515ef807fdd1/native_assets.json: 

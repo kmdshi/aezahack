@@ -1,0 +1,73 @@
+Flutter crash report.
+Please report a bug at https://github.com/flutter/flutter/issues.
+
+## command
+
+flutter run --machine --start-paused -d 00008110-001955DE3C50401E --devtools-server-address http://127.0.0.1:9100/ --target /Users/bgdan/projects/fltr/aezahack/fast-pdf/lib/main.dart
+
+## exception
+
+_TypeError: Null check operator used on a null value
+
+```
+#0      computeTransitiveDependencies (package:flutter_tools/src/package_graph.dart:69:29)
+#1      ManifestAssetBundle.build (package:flutter_tools/src/asset.dart:342:53)
+<asynchronous suspension>
+#2      HotRunner._updateDevFS (package:flutter_tools/src/run_hot.dart:493:26)
+<asynchronous suspension>
+#3      HotRunner._attach (package:flutter_tools/src/run_hot.dart:302:40)
+<asynchronous suspension>
+#4      AppDomain.launch.<anonymous closure> (package:flutter_tools/src/commands/daemon.dart:817:9)
+<asynchronous suspension>
+#5      Future.any.onValue (dart:async/future.dart:616:5)
+<asynchronous suspension>
+```
+
+## flutter doctor
+
+```
+[✓] Flutter (Channel stable, 3.35.3, on macOS 15.5 24F74 darwin-arm64, locale en-KZ) [155ms]
+    • Flutter version 3.35.3 on channel stable at /Users/bgdan/Development/flutter
+    • Upstream repository https://github.com/flutter/flutter.git
+    • Framework revision a402d9a437 (3 months ago), 2025-09-03 14:54:31 -0700
+    • Engine revision ddf47dd3ff
+    • Dart version 3.9.2
+    • DevTools version 2.48.0
+    • Feature flags: enable-web, enable-linux-desktop, enable-macos-desktop, enable-windows-desktop, enable-android, enable-ios, cli-animations, enable-lldb-debugging
+
+[✗] Android toolchain - develop for Android devices [124ms]
+    ✗ Unable to locate Android SDK.
+      Install Android Studio from: https://developer.android.com/studio/index.html
+      On first launch it will assist you in installing the Android SDK components.
+      (or visit https://flutter.dev/to/macos-android-setup for detailed instructions).
+      If the Android SDK has been installed to a custom location, please use
+      `flutter config --android-sdk` to update to that location.
+
+
+[✓] Xcode - develop for iOS and macOS (Xcode 16.4) [1,310ms]
+    • Xcode at /Applications/Xcode.app/Contents/Developer
+    • Build 16F6
+    • CocoaPods version 1.16.2
+
+[✓] Chrome - develop for the web [3ms]
+    • Chrome at /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+
+[!] Android Studio (not installed) [2ms]
+    • Android Studio not found; download from https://developer.android.com/studio/index.html
+      (or visit https://flutter.dev/to/macos-android-setup for detailed instructions).
+
+[✓] VS Code (version 1.103.2) [2ms]
+    • VS Code at /Users/bgdan/Downloads/Visual Studio Code.app/Contents
+    • Flutter extension version 3.122.0
+
+[✓] Connected device (4 available) [5.9s]
+    • iPhonKniger (mobile)                • 00008110-001955DE3C50401E            • ios            • iOS 18.5 22F76
+    • iPhone SE (3rd generation) (mobile) • 12458CF4-EE04-4351-BB68-1D7E92E32B62 • ios            • com.apple.CoreSimulator.SimRuntime.iOS-18-6 (simulator)
+    • macOS (desktop)                     • macos                                • darwin-arm64   • macOS 15.5 24F74 darwin-arm64
+    • Chrome (web)                        • chrome                               • web-javascript • Google Chrome 142.0.7444.176
+
+[✓] Network resources [442ms]
+    • All expected network resources are available.
+
+! Doctor found issues in 2 categories.
+```
