@@ -11,17 +11,31 @@ final class PdfEditorLoaded extends PdfEditorState {
   final Uint8List? pdfBytes;
   final List<Uint8List> pages;
   final String fileName;
+  final int currentPageIndex;
 
-  PdfEditorLoaded({this.pdfBytes, required this.pages, required this.fileName});
+  PdfEditorLoaded({
+    this.pdfBytes,
+    required this.pages,
+    required this.fileName,
+    required this.currentPageIndex,
+  });
 
-  PdfEditorLoaded copyWith({Uint8List? pdfBytes, List<Uint8List>? pages, String? fileName}) {
+  PdfEditorLoaded copyWith({
+    Uint8List? pdfBytes,
+    List<Uint8List>? pages,
+    String? fileName,
+    int? currentPageIndex,
+  }) {
     return PdfEditorLoaded(
       pdfBytes: pdfBytes ?? this.pdfBytes,
+      currentPageIndex: currentPageIndex ?? this.currentPageIndex,
       pages: pages ?? this.pages,
       fileName: fileName ?? this.fileName,
     );
   }
 }
+
+class DeletedPages extends PdfEditorState {}
 
 final class PdfExported extends PdfEditorState {
   final Uint8List pdfBytes;

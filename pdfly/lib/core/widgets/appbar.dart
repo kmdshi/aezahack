@@ -50,6 +50,7 @@ class CustomAppBar extends StatelessWidget {
     bool centerTitle = true,
   }) {
     return AppBar(
+      automaticallyImplyLeading: false,
       backgroundColor: CupertinoDropboxTheme.background,
       surfaceTintColor: Colors.transparent,
       elevation: 0,

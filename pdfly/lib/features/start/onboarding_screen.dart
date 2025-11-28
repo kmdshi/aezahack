@@ -11,46 +11,54 @@ class OnboardingScreen extends StatefulWidget {
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> 
+class _OnboardingScreenState extends State<OnboardingScreen>
     with TickerProviderStateMixin {
   final PageController _controller = PageController();
   int _page = 0;
-  
+
   late AnimationController _cardAnimController;
   late Animation<double> _cardAnimation;
+
+  late double _scale;
+  late double _textScale;
 
   final List<Map<String, dynamic>> pages = [
     {
       "title": "Scan Documents",
-      "subtitle": "Point your camera at any document to capture it. The app automatically detects edges and saves it as a high-quality PDF.",
+      "subtitle":
+          "Point your camera at any document to capture it. The app automatically detects edges and saves it as a high-quality PDF.",
       "image": "assets/images/start/onb_1.png",
       "icon": CupertinoIcons.doc_text_viewfinder,
       "color": CupertinoDropboxTheme.primary,
     },
     {
-      "title": "Convert Files", 
-      "subtitle": "Select photos or documents from your gallery, choose the output format, and instantly convert to PDF or other formats.",
+      "title": "Convert Files",
+      "subtitle":
+          "Select photos or documents from your gallery, choose the output format, and instantly convert to PDF or other formats.",
       "image": "assets/images/start/onb_2.png",
       "icon": CupertinoIcons.arrow_2_circlepath,
       "color": CupertinoDropboxTheme.success,
     },
     {
       "title": "Edit & Annotate",
-      "subtitle": "Open any PDF file to highlight text, add notes, insert images, or reorder pages with intuitive editing tools.",
+      "subtitle":
+          "Open any PDF file to highlight text, add notes, insert images, or reorder pages with intuitive editing tools.",
       "image": "assets/images/start/onb_3.png",
       "icon": CupertinoIcons.pencil,
       "color": CupertinoDropboxTheme.warning,
     },
     {
       "title": "Digital Signatures",
-      "subtitle": "Create your digital signature once and apply it to any document. Sign contracts and forms securely.",
+      "subtitle":
+          "Create your digital signature once and apply it to any document. Sign contracts and forms securely.",
       "image": "assets/images/start/onb_4.png",
       "icon": CupertinoIcons.signature,
       "color": Colors.purple,
     },
     {
       "title": "Organize Files",
-      "subtitle": "Create folders and organize your documents. All files are stored securely on your device.",
+      "subtitle":
+          "Create folders and organize your documents. All files are stored securely on your device.",
       "image": "assets/images/start/onb_5.png",
       "icon": CupertinoIcons.folder,
       "color": CupertinoDropboxTheme.primary,
@@ -60,7 +68,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   @override
   void initState() {
     super.initState();
-    
+
     _cardAnimController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
@@ -83,7 +91,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     if (_page < pages.length - 1) {
       _cardAnimController.reset();
       _cardAnimController.forward();
-      
+
       _controller.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
@@ -104,7 +112,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     if (_page > 0) {
       _cardAnimController.reset();
       _cardAnimController.forward();
-      
+
       _controller.previousPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
@@ -116,15 +124,18 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
+    /// BASE FOR ADAPTIVE
+    const baseWidth = 390.0; // iPhone 14 width
+    _scale = size.width / baseWidth;
+    _textScale = MediaQuery.textScaleFactorOf(context).clamp(1.0, 1.3);
+
     return Scaffold(
       backgroundColor: CupertinoDropboxTheme.background,
       body: SafeArea(
         child: Column(
           children: [
-            // Clean navigation header
             _buildHeader(),
 
-            // Main content
             Expanded(
               child: PageView.builder(
                 controller: _controller,
@@ -134,46 +145,46 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   _cardAnimController.forward();
                 },
                 itemCount: pages.length,
-                itemBuilder: (context, index) => _buildPageContent(pages[index]),
+                itemBuilder: (context, index) =>
+                    _buildPageContent(pages[index]),
               ),
             ),
 
-            // Bottom navigation
             _buildBottomNavigation(),
-            
-            const SizedBox(height: CupertinoDropboxTheme.spacing32),
+            SizedBox(height: 32 * _scale),
           ],
         ),
       ),
     );
   }
 
+  // -------------------------------------------------------------
+  // HEADER
+  // -------------------------------------------------------------
+
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.all(CupertinoDropboxTheme.spacing16),
+      padding: EdgeInsets.all(16 * _scale),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Back button
           CupertinoButton(
             padding: EdgeInsets.zero,
             onPressed: prevPage,
-            child: const Icon(
+            child: Icon(
               CupertinoIcons.back,
               color: CupertinoDropboxTheme.textSecondary,
-              size: 28,
+              size: 28 * _scale,
             ),
           ),
-          
-          // Page indicator
           Text(
             "${_page + 1} of ${pages.length}",
             style: CupertinoDropboxTheme.calloutStyle.copyWith(
+              fontSize:
+                  CupertinoDropboxTheme.calloutStyle.fontSize! * _textScale,
               color: CupertinoDropboxTheme.textSecondary,
             ),
           ),
-          
-          // Skip button
           CupertinoButton(
             padding: EdgeInsets.zero,
             onPressed: () => Navigator.pushReplacement(
@@ -183,6 +194,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             child: Text(
               "Skip",
               style: CupertinoDropboxTheme.calloutStyle.copyWith(
+                fontSize:
+                    CupertinoDropboxTheme.calloutStyle.fontSize! * _textScale,
                 color: CupertinoDropboxTheme.primary,
               ),
             ),
@@ -192,130 +205,108 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  Widget _buildPageContent(Map<String, dynamic> pageData) {
+  // -------------------------------------------------------------
+  // PAGE CONTENT
+  // -------------------------------------------------------------
+
+  Widget _buildPageContent(Map<String, dynamic> p) {
     return ScaleTransition(
       scale: _cardAnimation,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: CupertinoDropboxTheme.spacing24,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 24 * _scale),
         child: Column(
           children: [
-            const SizedBox(height: CupertinoDropboxTheme.spacing40),
-            
-            // Feature card
+            SizedBox(height: 50 * _scale),
+
+            /// ✦ Feature card
             CupertinoDropboxCard(
-              padding: const EdgeInsets.all(CupertinoDropboxTheme.spacing32),
-              child: Column(
-                children: [
-                  // Icon
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: pageData['color'].withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(20),
+              padding: EdgeInsets.all(32 * _scale),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: 300 * _scale),
+
+                child: Column(
+                  children: [
+                    Container(
+                      width: 80 * _scale,
+                      height: 80 * _scale,
+                      decoration: BoxDecoration(
+                        color: p['color'].withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(20 * _scale),
+                      ),
+                      child: Icon(
+                        p['icon'],
+                        color: p['color'],
+                        size: 40 * _scale,
+                      ),
                     ),
-                    child: Icon(
-                      pageData['icon'],
-                      color: pageData['color'],
-                      size: 40,
+
+                    SizedBox(height: 24 * _scale),
+
+                    Text(
+                      p['title'],
+                      style: CupertinoDropboxTheme.title2Style.copyWith(
+                        fontSize:
+                            CupertinoDropboxTheme.title2Style.fontSize! *
+                            _textScale,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                  ),
-                  
-                  const SizedBox(height: CupertinoDropboxTheme.spacing24),
-                  
-                  // Title
-                  Text(
-                    pageData['title'],
-                    style: CupertinoDropboxTheme.title2Style,
-                    textAlign: TextAlign.center,
-                  ),
-                  
-                  const SizedBox(height: CupertinoDropboxTheme.spacing16),
-                  
-                  // Description
-                  Text(
-                    pageData['subtitle'],
-                    style: CupertinoDropboxTheme.calloutStyle.copyWith(
-                      color: CupertinoDropboxTheme.textSecondary,
-                      height: 1.4,
+
+                    SizedBox(height: 16 * _scale),
+
+                    Text(
+                      p['subtitle'],
+                      style: CupertinoDropboxTheme.calloutStyle.copyWith(
+                        fontSize:
+                            CupertinoDropboxTheme.calloutStyle.fontSize! *
+                            _textScale,
+                        color: CupertinoDropboxTheme.textSecondary,
+                        height: 1.35,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-            
-            const SizedBox(height: CupertinoDropboxTheme.spacing48),
-            
-            // Image placeholder (since actual images might not be available)
-            Container(
-              height: 200,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: CupertinoDropboxTheme.gray100,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: CupertinoDropboxTheme.cardBorder,
+                  ],
                 ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    pageData['icon'],
-                    color: CupertinoDropboxTheme.gray400,
-                    size: 48,
-                  ),
-                  const SizedBox(height: CupertinoDropboxTheme.spacing8),
-                  Text(
-                    "Feature Preview",
-                    style: CupertinoDropboxTheme.footnoteStyle.copyWith(
-                      color: CupertinoDropboxTheme.gray500,
-                    ),
-                  ),
-                ],
-              ),
             ),
+
+            SizedBox(height: 48 * _scale),
           ],
         ),
       ),
     );
   }
 
+  // -------------------------------------------------------------
+  // BOTTOM NAVIGATION (DOTS + BUTTON)
+  // -------------------------------------------------------------
+
   Widget _buildBottomNavigation() {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: CupertinoDropboxTheme.spacing24,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 24 * _scale),
       child: Column(
         children: [
-          // Page dots
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
               pages.length,
-              (index) => AnimatedContainer(
+              (i) => AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                width: index == _page ? 24 : 8,
-                height: 8,
-                margin: const EdgeInsets.symmetric(
-                  horizontal: CupertinoDropboxTheme.spacing4,
-                ),
+                width: i == _page ? 24 * _scale : 8 * _scale,
+                height: 8 * _scale,
+                margin: EdgeInsets.symmetric(horizontal: 4 * _scale),
                 decoration: BoxDecoration(
-                  color: index == _page 
-                    ? CupertinoDropboxTheme.primary
-                    : CupertinoDropboxTheme.gray300,
-                  borderRadius: BorderRadius.circular(4),
+                  color: i == _page
+                      ? CupertinoDropboxTheme.primary
+                      : CupertinoDropboxTheme.gray300,
+                  borderRadius: BorderRadius.circular(4 * _scale),
                 ),
               ),
             ),
           ),
-          
-          const SizedBox(height: CupertinoDropboxTheme.spacing32),
-          
-          // Continue button
+
+          SizedBox(height: 32 * _scale),
+
           CupertinoDropboxButton(
             onPressed: nextPage,
             child: Row(
@@ -324,14 +315,17 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 Text(
                   _page == pages.length - 1 ? "Get Started" : "Continue",
                   style: CupertinoDropboxTheme.headlineStyle.copyWith(
+                    fontSize:
+                        CupertinoDropboxTheme.headlineStyle.fontSize! *
+                        _textScale,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(width: CupertinoDropboxTheme.spacing8),
-                const Icon(
+                SizedBox(width: 8 * _scale),
+                Icon(
                   CupertinoIcons.arrow_right,
                   color: Colors.white,
-                  size: 18,
+                  size: 18 * _scale,
                 ),
               ],
             ),

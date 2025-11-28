@@ -1,6 +1,5 @@
-import 'package:fast_pdf/core/theme/cupertino_dropbox_theme.dart';
-import 'package:fast_pdf/core/widgets/cupertino_dropbox_widgets.dart';
 import 'package:fast_pdf/features/start/onboarding_screen.dart';
+import 'package:fast_pdf/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -12,91 +11,78 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen>
-    with TickerProviderStateMixin {
-  late AnimationController _fadeController;
-  late AnimationController _slideController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fade;
+  late Animation<Offset> _slide;
+
+  double _scale = 1.0;
 
   @override
   void initState() {
     super.initState();
-
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+    _controller = AnimationController(
       vsync: this,
+      duration: const Duration(milliseconds: 600),
     );
-
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
-      vsync: this,
-    );
-
-    _fadeAnimation = Tween(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(curve: Curves.easeOut, parent: _fadeController));
-
-    _slideAnimation = Tween(begin: const Offset(0, 0.3), end: Offset.zero)
-        .animate(
-          CurvedAnimation(curve: Curves.easeOutCubic, parent: _slideController),
-        );
-
-    _fadeController.forward();
-    _slideController.forward();
+    _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    _slide = Tween(
+      begin: const Offset(0, 0.05),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _controller.forward();
   }
 
   @override
   void dispose() {
-    _fadeController.dispose();
-    _slideController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    return LayoutBuilder(
+      builder: (context, c) {
+        final width = c.maxWidth;
 
-    return Scaffold(
-      backgroundColor: CupertinoDropboxTheme.background,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: CupertinoDropboxTheme.spacing24,
-                ),
-                child: Column(
-                  children: [
-                    SizedBox(height: size.height * 0.08),
+        /// 🔥 Масштаб под iPhone SE → 15 Pro Max → iPad
+        _scale = (width / 390).clamp(0.75, 1.5);
 
-                    /// 🔥 Главный фикс — убираем Expanded.
-                    /// Делаем обычный контейнер фиксированной высоты
-                    SizedBox(
-                      height: size.height * 0.55,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildTitleSection(),
-                          SizedBox(height: size.height * 0.06),
-                          _buildFeaturesGrid(),
-                        ],
-                      ),
-                    ),
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: FadeTransition(
+              opacity: _fade,
+              child: SlideTransition(
+                position: _slide,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24 * _scale),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 36 * _scale),
 
-                    _buildBottomSection(),
+                      /// Верхняя часть
+                      _buildTitleSection(),
 
-                    const SizedBox(height: CupertinoDropboxTheme.spacing32),
-                  ],
+                      SizedBox(height: 30 * _scale),
+
+                      /// Сетка — занимает всё доступное
+                      Expanded(child: _buildFeatureGrid()),
+
+                      SizedBox(height: 30 * _scale),
+
+                      /// Нижняя кнопка — всегда снизу
+                      _buildBottom(),
+
+                      SizedBox(height: 20 * _scale),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -104,154 +90,184 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     return Column(
       children: [
         Text(
-          "Welcome to the Pdfly\nPowerful PDF Tools",
+          "Welcome to Pdfly\nPowerful PDF Tools",
           textAlign: TextAlign.center,
-          style: CupertinoDropboxTheme.largeTitleStyle,
+          style: TextStyle(
+            fontSize: 32 * _scale,
+            fontWeight: FontWeight.w700,
+            height: 1.1,
+          ),
         ),
-        const SizedBox(height: CupertinoDropboxTheme.spacing16),
+        SizedBox(height: 14 * _scale),
         Text(
           "Scan, convert, edit, and sign documents\nwith professional-quality results",
           textAlign: TextAlign.center,
-          style: CupertinoDropboxTheme.bodyStyle.copyWith(
-            color: CupertinoDropboxTheme.textSecondary,
+          style: TextStyle(
+            fontSize: 16 * _scale,
+            color: Colors.grey[600],
+            height: 1.3,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildFeaturesGrid() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: _buildFeatureCard(
-                icon: CupertinoIcons.doc_text_search,
-                title: "Scan",
-                color: CupertinoDropboxTheme.primary,
-              ),
-            ),
-            const SizedBox(width: CupertinoDropboxTheme.spacing12),
-            Expanded(
-              child: _buildFeatureCard(
-                icon: CupertinoIcons.arrow_2_circlepath,
-                title: "Convert",
-                color: CupertinoDropboxTheme.success,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: CupertinoDropboxTheme.spacing12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildFeatureCard(
-                icon: CupertinoIcons.pencil,
-                title: "Edit",
-                color: CupertinoDropboxTheme.warning,
-              ),
-            ),
-            const SizedBox(width: CupertinoDropboxTheme.spacing12),
-            Expanded(
-              child: _buildFeatureCard(
-                icon: CupertinoIcons.signature,
-                title: "Sign",
-                color: CupertinoDropboxTheme.primaryDark,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFeatureCard({
-    required IconData icon,
-    required String title,
-    required Color color,
-  }) {
-    return CupertinoDropboxCard(
-      padding: const EdgeInsets.all(CupertinoDropboxTheme.spacing20),
+  Widget _buildFeatureGrid() {
+    return Center(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: color, size: 24),
+          Row(
+            children: [
+              Expanded(
+                child: _feature(
+                  "Scan",
+                  CupertinoIcons.doc_text_search,
+                  Colors.blue,
+                ),
+              ),
+              SizedBox(width: 12 * _scale),
+              Expanded(
+                child: _feature(
+                  "Convert",
+                  CupertinoIcons.arrow_2_circlepath,
+                  Colors.green,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: CupertinoDropboxTheme.spacing12),
-          Text(title, style: CupertinoDropboxTheme.headlineStyle),
+          SizedBox(height: 12 * _scale),
+          Row(
+            children: [
+              Expanded(
+                child: _feature("Edit", CupertinoIcons.pencil, Colors.orange),
+              ),
+              SizedBox(width: 12 * _scale),
+              Expanded(
+                child: _feature(
+                  "Sign",
+                  CupertinoIcons.signature,
+                  Colors.indigo,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildBottomSection() {
+  Widget _feature(String title, IconData icon, Color color) {
+    return Container(
+      padding: EdgeInsets.all(20 * _scale),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18 * _scale),
+        border: Border.all(color: Colors.black.withOpacity(0.08), width: 0.6),
+
+        /// 🔥 Самая важная часть — iOS-style градиент
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFFFFFFFF),
+            Color(0xFFF6F6F7), // нежная тень снизу
+          ],
+        ),
+
+        /// внутренняя тень как у Apple карточек
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 20,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 52 * _scale,
+            height: 52 * _scale,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14 * _scale),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [color.withOpacity(0.22), color.withOpacity(0.12)],
+              ),
+            ),
+            child: Icon(icon, color: color, size: 26 * _scale),
+          ),
+          SizedBox(height: 12 * _scale),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16 * _scale,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottom() {
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildLegalLink("Terms", () {}),
-            Container(
-              width: 1,
-              height: 16,
-              margin: const EdgeInsets.symmetric(
-                horizontal: CupertinoDropboxTheme.spacing16,
-              ),
-              color: CupertinoDropboxTheme.divider,
-            ),
-            _buildLegalLink("Privacy", () {}),
-          ],
-        ),
-        const SizedBox(height: CupertinoDropboxTheme.spacing32),
-        CupertinoDropboxButton(
-          onPressed: () {
-            Navigator.of(context).push(
-              CupertinoPageRoute(builder: (_) => const OnboardingScreen()),
-            );
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Get Started",
-                style: CupertinoDropboxTheme.headlineStyle.copyWith(
-                  color: Colors.white,
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: terms,
+              child: Text(
+                "Terms",
+                style: TextStyle(
+                  fontSize: 13 * _scale,
+                  color: Colors.grey[600],
+                  decoration: TextDecoration.underline,
                 ),
               ),
-              const SizedBox(width: CupertinoDropboxTheme.spacing8),
-              const Icon(
-                CupertinoIcons.arrow_right,
-                color: Colors.white,
-                size: 18,
+            ),
+            SizedBox(width: 16 * _scale),
+            Container(width: 1, height: 14 * _scale, color: Colors.grey[400]),
+            SizedBox(width: 16 * _scale),
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: privacy,
+              child: Text(
+                "Privacy",
+                style: TextStyle(
+                  fontSize: 13 * _scale,
+                  color: Colors.grey[600],
+                  decoration: TextDecoration.underline,
+                ),
               ),
-            ],
+            ),
+          ],
+        ),
+
+        SizedBox(height: 26 * _scale),
+
+        SizedBox(
+          height: 54 * _scale,
+          width: double.infinity,
+          child: CupertinoButton(
+            padding: EdgeInsets.zero,
+            borderRadius: BorderRadius.circular(14 * _scale),
+            color: Colors.black,
+            onPressed: () => Navigator.of(context).push(CupertinoPageRoute(builder: (_) => OnboardingScreen())),
+            child: Text(
+              "Get Started",
+              style: TextStyle(
+                fontSize: 18 * _scale,
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildLegalLink(String text, VoidCallback onTap) {
-    return CupertinoButton(
-      padding: const EdgeInsets.symmetric(
-        horizontal: CupertinoDropboxTheme.spacing12,
-        vertical: CupertinoDropboxTheme.spacing8,
-      ),
-      onPressed: onTap,
-      child: Text(
-        text,
-        style: CupertinoDropboxTheme.footnoteStyle.copyWith(
-          decoration: TextDecoration.underline,
-          decorationColor: CupertinoDropboxTheme.textSecondary,
-        ),
-      ),
     );
   }
 }

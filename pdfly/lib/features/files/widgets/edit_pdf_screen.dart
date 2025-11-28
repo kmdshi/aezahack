@@ -39,11 +39,6 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
     fileNameController = TextEditingController(text: 'Edit PDF');
     _pageController = PageController();
 
-    _pageController.addListener(() {
-      setState(() {
-        _currentPageIndex = _pageController.page?.round() ?? 0;
-      });
-    });
     super.initState();
   }
 
@@ -58,6 +53,9 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
   Widget build(BuildContext context) {
     return BlocListener<PdfEditorBloc, PdfEditorState>(
       listener: (context, state) async {
+        if (state is DeletedPages) {
+          Navigator.of(context).pop();
+        }
         if (state is PdfExported) {
           await _savePdf(state.pdfBytes);
           Navigator.pop(context);
@@ -148,7 +146,6 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
               ),
               body: Column(
                 children: [
-                  // Main content area
                   Expanded(
                     child: Container(
                       margin: const EdgeInsets.all(
@@ -164,6 +161,12 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                       child: PageView.builder(
                         controller: _pageController,
                         itemCount: state.pages.length,
+                        onPageChanged: (index) {
+                          context.read<PdfEditorBloc>().add(
+                            UpdatePageIndex(index: index),
+                          );
+                        },
+
                         itemBuilder: (context, index) {
                           final page = state.pages[index];
 
@@ -232,7 +235,7 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                         vertical: CupertinoDropboxTheme.spacing8,
                       ),
                       child: Text(
-                        "Page ${_currentPageIndex + 1} of ${state.pages.length}",
+                        "Page ${state.currentPageIndex + 1} of ${state.pages.length}",
                         style: CupertinoDropboxTheme.footnoteStyle,
                       ),
                     ),
@@ -266,7 +269,6 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                         'Sign',
                       ],
                       onTap: (index) {
-                        final pageIndex = _currentPageIndex;
                         final currentState = context
                             .read<PdfEditorBloc>()
                             .state;
@@ -283,7 +285,7 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                             break;
                           case 1:
                             context.read<PdfEditorBloc>().add(
-                              DeletePageEvent(pageIndex),
+                              DeletePageEvent(),
                             );
                             break;
 
@@ -304,9 +306,7 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                             break;
 
                           case 3:
-                            context.read<PdfEditorBloc>().add(
-                              CopyPageEvent(pageIndex),
-                            );
+                            context.read<PdfEditorBloc>().add(CopyPageEvent());
                             break;
 
                           case 4:

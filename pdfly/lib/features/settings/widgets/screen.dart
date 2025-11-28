@@ -66,14 +66,10 @@ class _SettingsScreenState extends State<SettingsScreen>
             position: _slideAnimation,
             child: CustomScrollView(
               slivers: [
-                // Profile section
-                SliverToBoxAdapter(child: _buildProfileSection()),
-
                 // Premium card
                 SliverToBoxAdapter(child: _buildPremiumCard()),
 
                 // Settings sections
-                SliverToBoxAdapter(child: _buildAccountSection()),
                 SliverToBoxAdapter(child: _buildLegalSection()),
                 SliverToBoxAdapter(child: _buildGeneralSection()),
 
@@ -402,7 +398,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                     style: CupertinoDropboxTheme.calloutStyle,
                   ),
                   subtitle: Text(
-                    "Tell friends about FastPDF",
+                    "Tell friends about Pdfly",
                     style: CupertinoDropboxTheme.footnoteStyle,
                   ),
                   showChevron: true,
@@ -428,7 +424,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                     ),
                   ),
                   title: Text(
-                    "About FastPDF",
+                    "About Pdfly",
                     style: CupertinoDropboxTheme.calloutStyle,
                   ),
                   subtitle: Text(
@@ -455,7 +451,7 @@ class _SettingsScreenState extends State<SettingsScreen>
 
     SharePlus.instance.share(
       ShareParams(
-        title: 'Check out FastPDF!',
+        title: 'Check out Pdfly!',
         subject: 'Amazing PDF app for scanning and editing documents',
         uri: Uri.parse(link),
       ),

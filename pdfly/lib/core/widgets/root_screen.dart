@@ -76,12 +76,14 @@ class _RootScreenState extends State<RootScreen> with TickerProviderStateMixin {
       appBar: CustomAppBar.dropboxAppBar(
         title: "Documents",
         centerTitle: false,
+        onBack: null,
         actions: [
           CupertinoButton(
             padding: EdgeInsets.zero,
             onPressed: () => Navigator.of(
               context,
             ).push(CupertinoPageRoute(builder: (_) => const SettingsScreen())),
+
             child: Container(
               width: 36,
               height: 36,
@@ -108,7 +110,7 @@ class _RootScreenState extends State<RootScreen> with TickerProviderStateMixin {
           ),
 
           // Floating action button for quick actions
-          _buildFloatingActionButton(),
+          history.isEmpty ? SizedBox.shrink() : _buildFloatingActionButton(),
 
           // Loading overlay
           if (_isLoading) _buildLoadingOverlay(),

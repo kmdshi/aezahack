@@ -26,7 +26,10 @@ class PdfEditorBloc extends Bloc<PdfEditorEvent, PdfEditorState> {
     on<CopyPageEvent>(_onCopyPage);
     on<AddSignatureEvent>(_onAddSignature);
     on<LoadPdfFromPathEvent>(_onLoadPdfFromPath);
-    
+    on<UpdatePageIndex>((event, emit) {
+      final s = state as PdfEditorLoaded;
+      emit(s.copyWith(currentPageIndex: event.index));
+    });
   }
 
   Future<void> _onLoadPdfFromPath(
@@ -58,6 +61,7 @@ class PdfEditorBloc extends Bloc<PdfEditorEvent, PdfEditorState> {
         PdfEditorLoaded(
           pdfBytes: await File(event.path).readAsBytes(),
           pages: pages,
+          currentPageIndex: 0,
           fileName: event.path.split('/').last.replaceAll('.pdf', ''),
         ),
       );
@@ -116,6 +120,7 @@ class PdfEditorBloc extends Bloc<PdfEditorEvent, PdfEditorState> {
 
       emit(
         PdfEditorLoaded(
+          currentPageIndex: currentState.currentPageIndex,
           pages: newPages,
           pdfBytes: updatedPdfBytes,
           fileName: currentState.fileName,
@@ -134,7 +139,7 @@ class PdfEditorBloc extends Bloc<PdfEditorEvent, PdfEditorState> {
     if (currentState is! PdfEditorLoaded) return;
 
     try {
-      final page = currentState.pages[event.index];
+      final page = currentState.pages[currentState.currentPageIndex];
       final copiedPage = Uint8List.fromList(page);
 
       final updatedPages = List<Uint8List>.from(currentState.pages);
@@ -143,6 +148,7 @@ class PdfEditorBloc extends Bloc<PdfEditorEvent, PdfEditorState> {
 
       emit(
         PdfEditorLoaded(
+          currentPageIndex: currentState.currentPageIndex,
           pdfBytes: updatedPdf,
           pages: updatedPages,
           fileName: currentState.fileName,
@@ -194,6 +200,7 @@ class PdfEditorBloc extends Bloc<PdfEditorEvent, PdfEditorState> {
 
       emit(
         PdfEditorLoaded(
+          currentPageIndex: currentState.currentPageIndex,
           pdfBytes: updatedPdf,
           pages: updatedPages,
           fileName: currentState.fileName,
@@ -228,6 +235,7 @@ class PdfEditorBloc extends Bloc<PdfEditorEvent, PdfEditorState> {
       }
       emit(
         PdfEditorLoaded(
+          currentPageIndex: 0,
           pdfBytes: event.pdfBytes,
           pages: pages,
           fileName: event.fileName,
@@ -259,10 +267,27 @@ class PdfEditorBloc extends Bloc<PdfEditorEvent, PdfEditorState> {
     if (state is! PdfEditorLoaded) return;
 
     final s = state as PdfEditorLoaded;
-    final pages = List<Uint8List>.from(s.pages)..removeAt(event.index);
-    final updatedPdf = await _rebuildPdfFromPages(pages);
 
-    emit(s.copyWith(pdfBytes: updatedPdf, pages: pages));
+    if (s.currentPageIndex < 0 || s.currentPageIndex >= s.pages.length) {
+      emit(PdfEditorError("Неправильный индекс страницы"));
+      return;
+    }
+
+    final pages = List<Uint8List>.from(s.pages)..removeAt(s.currentPageIndex);
+
+    if (pages.isEmpty) {
+      emit(DeletedPages());
+      return;
+    }
+
+    final updatedPdf = await _rebuildPdfFromPages(pages);
+    emit(
+      s.copyWith(
+        pdfBytes: updatedPdf,
+        pages: pages,
+        currentPageIndex: s.currentPageIndex - 1,
+      ),
+    );
   }
 
   Future<void> _onRename(
