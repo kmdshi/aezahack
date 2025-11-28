@@ -281,11 +281,13 @@ class PdfEditorBloc extends Bloc<PdfEditorEvent, PdfEditorState> {
     }
 
     final updatedPdf = await _rebuildPdfFromPages(pages);
+    final newIndex = s.currentPageIndex > 0 ? s.currentPageIndex - 1 : 0;
+
     emit(
       s.copyWith(
         pdfBytes: updatedPdf,
         pages: pages,
-        currentPageIndex: s.currentPageIndex - 1,
+        currentPageIndex: newIndex,
       ),
     );
   }
