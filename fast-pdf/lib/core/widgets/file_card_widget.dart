@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:camera/camera.dart';
 import 'package:fast_pdf/core/services/files_history.dart';
 import 'package:fast_pdf/core/services/notifier.dart';
 import 'package:fast_pdf/core/widgets/button_widget.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:toastification/toastification.dart';
 
 class FileCardWidget extends StatefulWidget {
@@ -139,6 +141,21 @@ class _FileCardWidgetState extends State<FileCardWidget> {
                   child: _actionButton(
                     'assets/images/icons/share.svg',
                     "Share",
+                    onTap: () async {
+                      try {
+                        final file = XFile(widget.path);
+                        await Share.shareXFiles([
+                          file,
+                        ], text: 'Check out this PDF file!');
+                      } catch (e) {
+                        toastification.show(
+                          type: ToastificationType.error,
+                          context: context,
+                          title: Text('Ошибка при шаринге: $e'),
+                          autoCloseDuration: const Duration(seconds: 5),
+                        );
+                      }
+                    },
                   ),
                 ),
               ),
