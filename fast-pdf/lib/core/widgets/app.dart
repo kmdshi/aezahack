@@ -1,4 +1,3 @@
-import 'package:fast_pdf/core/widgets/root_screen.dart';
 import 'package:fast_pdf/features/files/blocs/converter/convert_bloc.dart';
 import 'package:fast_pdf/features/files/blocs/scan/scan_bloc.dart';
 import 'package:fast_pdf/features/start/welcome_screen.dart';
@@ -23,7 +22,11 @@ class _AppState extends State<App> {
         BlocProvider(create: (context) => ScanBloc()),
         BlocProvider(create: (context) => PdfConverterBloc()),
       ],
-      child: MaterialApp(home: WelcomeScreen(), theme: AppTheme.lightTheme),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: WelcomeScreen(),
+        theme: AppTheme.lightTheme,
+      ),
     );
   }
 }

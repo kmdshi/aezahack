@@ -1,10 +1,10 @@
 import 'dart:io';
-
+import 'package:fast_pdf/core/widgets/appbar.dart';
+import 'package:fast_pdf/core/widgets/button_widget.dart';
+import 'package:fast_pdf/features/settings/widgets/prem.dart';
+import 'package:fast_pdf/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:fast_pdf/features/prem/screen.dart';
-import 'package:fast_pdf/main.dart';
 import 'package:share_plus/share_plus.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -18,122 +18,107 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F6FA),
-      appBar: AppBar(
-        title: Text(
-          'Settings',
-          style: TextStyle(
-            fontSize: 32,
-            color: Color(0xFF383838),
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: SvgPicture.asset(
-              "assets/images/bg_line.svg",
-              fit: BoxFit.fill,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Positioned(
+              top: 16,
+              left: 0,
+              right: 0,
+              child: CustomAppBar(
+                titleWidget: const Text(
+                  "SETTINGS",
+                  style: TextStyle(color: Colors.white),
+                ),
+                left: ButtonWidget(
+                  asset: 'assets/images/icons/back.svg',
+                  onTap: () => Navigator.pop(context),
+                ),
+              ),
             ),
-          ),
 
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: Column(
                 children: [
-                  Material(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(24),
-                      onTap: () => Navigator.of(
+                  const SizedBox(height: 80),
+
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
                         context,
-                      ).push(CupertinoPageRoute(builder: (_) => PremScreen())),
-                      child: Container(
-                        height: 163,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(24),
-                          image: const DecorationImage(
-                            image: AssetImage("assets/images/prem/prem.png"),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: SizedBox.expand(),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap: terms,
-                          child: Container(
-                            height: 148,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24),
-                              image: const DecorationImage(
-                                image: AssetImage(
-                                  "assets/images/prem/terms.png",
-                                ),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            alignment: Alignment.center,
-                            child: SizedBox.expand(),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: InkWell(
-                          onTap: privacy,
-                          child: Container(
-                            height: 148,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24),
-                              image: const DecorationImage(
-                                image: AssetImage(
-                                  "assets/images/prem/policy.png",
-                                ),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            alignment: Alignment.center,
-                            child: SizedBox.expand(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  InkWell(
-                    onTap: shareApp,
+                        CupertinoPageRoute(builder: (_) => const PremScreen()),
+                      );
+                    },
                     child: Container(
-                      height: 112,
+                      height: 60,
+                      padding: EdgeInsets.symmetric(horizontal: 20),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(24),
-                        image: const DecorationImage(
-                          image: AssetImage("assets/images/prem/share.png"),
-                          fit: BoxFit.cover,
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF3093FF), Color(0xFF027BFF)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
                       ),
-                      alignment: Alignment.center,
-                      child: SizedBox.expand(),
+                      child: Align(
+                        alignment: AlignmentGeometry.centerLeft,
+                        child: const Text(
+                          "Premium",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
+
+                  const SizedBox(height: 14),
+
+                  _settingsContainer(title: "Terms of Use", onTap: terms),
+
+                  const SizedBox(height: 14),
+
+                  _settingsContainer(title: "Privacy Policy", onTap: privacy),
+
+                  const SizedBox(height: 14),
+
+                  _settingsContainer(title: "Share App", onTap: shareApp),
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _settingsContainer({
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 60,
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1A1A1A),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 17,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        ],
+        ),
       ),
     );
   }

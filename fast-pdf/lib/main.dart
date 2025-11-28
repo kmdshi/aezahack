@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 privacy() {
   launchUrl(
     Uri.parse(
-      'https://docs.google.com/document/d/1dZBRwz6RAPKlCr8Vx_lv_RBnfNuaZ0sQjYZYWlUX4wA/edit?usp=sharing',
+      'https://docs.google.com/document/d/1I2f2O26bApsgd9oCMAG9k1JlYW7z6kjhIaceJeTKbnE/edit?usp=sharing',
     ),
   );
 }
@@ -14,7 +14,7 @@ privacy() {
 terms() {
   launchUrl(
     Uri.parse(
-      'https://docs.google.com/document/d/17O-9eCc3wivaRSKnaqeB6S7ltSEPsmSf1hQjZe5k7GA/edit?usp=sharing',
+      'https://docs.google.com/document/d/1LdjWkT-RNmvl7reid8KQuLj2pmFCVoG4hAvBRoXts14/edit?usp=sharing',
     ),
   );
 }

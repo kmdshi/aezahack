@@ -1,4 +1,5 @@
 import 'package:fast_pdf/features/start/onboarding_screen.dart';
+import 'package:fast_pdf/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,7 +11,6 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size.width;
-    final h = MediaQuery.of(context).size.width;
 
     final double fontSize = size * 0.1;
 
@@ -73,18 +73,24 @@ class WelcomeScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "Terms of use",
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(.5),
-                          fontSize: 16,
+                      InkWell(
+                        onTap: terms,
+                        child: Text(
+                          "Terms of use",
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(.5),
+                            fontSize: 16,
+                          ),
                         ),
                       ),
-                      Text(
-                        "Privacy Policy",
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(.5),
-                          fontSize: 16,
+                      InkWell(
+                        onTap: privacy,
+                        child: Text(
+                          "Privacy Policy",
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(.5),
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ],
@@ -140,7 +146,7 @@ class WelcomeScreen extends StatelessWidget {
 
                       onDragging: (i, low, high) {
                         if (low > 60) {
-                          Navigator.of(context).pushReplacement(
+                          Navigator.of(context).push(
                             CupertinoPageRoute(
                               builder: (_) => OnboardingScreen(),
                             ),

@@ -103,33 +103,7 @@ class _SignatureScreenState extends State<NewSignatureScreen> {
     Navigator.pop(context, true);
   }
 
-  Future<void> _confirmAndDeleteSignature() async {
-    if (currentId == null) return;
-
-    final should = await showCupertinoDialog<bool>(
-      context: context,
-      builder: (c) => CupertinoAlertDialog(
-        title: const Text('Delete signature?'),
-        content: const Text('Are you sure you want to delete this signature?'),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(c, false),
-            child: const Text('Cancel'),
-          ),
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            onPressed: () => Navigator.pop(c, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-
-    if (should == true) {
-      await deleteSignature(currentId!);
-      Navigator.pop(context, true);
-    }
-  }
+  
 
   Future<void> deleteSignature(int id) async {
     final prefs = await SharedPreferences.getInstance();
@@ -174,7 +148,7 @@ class _SignatureScreenState extends State<NewSignatureScreen> {
                     asset: 'assets/images/icons/done.svg',
                     iconSize: 10,
                     onTap: () {
-                      Navigator.pop(context);
+                      _saveSignature();
                     },
                   ),
                 ),

@@ -168,17 +168,61 @@ class _PdfConverterScreenState extends State<PdfConverterScreen> {
                     return Container(
                       height: 435,
                       width: 322,
-                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: Colors.white,
+                        color: Colors.white.withOpacity(.1),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 12,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      child: const Text(
-                        "File converted! Tap to the check to save it.",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 70,
+                            height: 70,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF55A4FF).withOpacity(0.15),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: SvgPicture.asset(
+                                'assets/images/icons/done.svg',
+                                width: 24,
+                                height: 24,
+                                color: Color(0xFF55A4FF),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          const Text(
+                            "File converted!",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          const Text(
+                            "Tap the checkmark button above to save it.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              height: 1.4,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
                       ),
                     );
                   }
@@ -188,7 +232,9 @@ class _PdfConverterScreenState extends State<PdfConverterScreen> {
                     height: 435,
                     width: 322,
                     decoration: BoxDecoration(
-                      color: Colors.red,
+                      image: DecorationImage(
+                        image: AssetImage('assets/images/convert.png'),
+                      ),
                       borderRadius: BorderRadius.circular(12),
                     ),
                   );
@@ -198,21 +244,23 @@ class _PdfConverterScreenState extends State<PdfConverterScreen> {
 
             Positioned(
               bottom: 20,
-              left: MediaQuery.of(context).size.width / 2 - 45,
+              left: MediaQuery.of(context).size.width / 2 - 30,
               child: InkWell(
                 onTap: () => _pickFile(context),
                 child: Container(
-                  width: 90,
-                  height: 90,
-                  decoration: const BoxDecoration(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
                     color: Color(0xFF55A4FF),
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(22),
                   ),
-                  child: SvgPicture.asset(
-                    'assets/images/icons/save.svg',
-                    fit: BoxFit.scaleDown,
-                    width: 32,
-                    height: 32,
+                  child: Center(
+                    child: SvgPicture.asset(
+                      'assets/images/icons/save.svg',
+                      color: Colors.white,
+                      width: 36,
+                      height: 36,
+                    ),
                   ),
                 ),
               ),

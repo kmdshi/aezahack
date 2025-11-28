@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void showSignatureSelector({
   required BuildContext context,
   required Function(Uint8List, int) onSignatureSelected,
+  required Function(int) onDeleteSignature,
 }) {
   showModalBottomSheet(
     backgroundColor: Colors.black,
@@ -93,7 +94,6 @@ void showSignatureSelector({
                                 ),
                               );
                             }
-
                             final signature = signatures[index];
 
                             return GestureDetector(
@@ -103,6 +103,40 @@ void showSignatureSelector({
                                   signature.id,
                                 );
                                 Navigator.pop(context);
+                              },
+                              onLongPress: () async {
+                                final should = await showCupertinoDialog<bool>(
+                                  context: context,
+                                  builder: (c) => CupertinoTheme(
+                                    data: const CupertinoThemeData(
+                                      brightness: Brightness.dark,
+                                    ),
+                                    child: CupertinoAlertDialog(
+                                      title: const Text('Delete signature?'),
+                                      content: const Text(
+                                        'Are you sure you want to delete this signature?',
+                                      ),
+                                      actions: [
+                                        CupertinoDialogAction(
+                                          onPressed: () =>
+                                              Navigator.pop(c, false),
+                                          child: const Text('Cancel'),
+                                        ),
+                                        CupertinoDialogAction(
+                                          isDestructiveAction: true,
+                                          onPressed: () =>
+                                              Navigator.pop(c, true),
+                                          child: const Text('Delete'),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+
+                                if (should == true) {
+                                  onDeleteSignature(signature.id);
+                                  Navigator.pop(context);
+                                }
                               },
                               child: Container(
                                 width: 111,

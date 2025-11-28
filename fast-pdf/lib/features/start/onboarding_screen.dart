@@ -1,3 +1,4 @@
+import 'package:fast_pdf/features/start/welcome_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -62,6 +63,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void prevPage() {
+    if (_page == 0) {
+      Navigator.pop(context);
+      return;
+    }
     if (_page > 0) {
       _controller.previousPage(
         duration: const Duration(milliseconds: 300),

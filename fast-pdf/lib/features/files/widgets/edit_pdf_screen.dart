@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:crop_your_image/crop_your_image.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:fast_pdf/core/widgets/appbar.dart';
 import 'package:fast_pdf/core/widgets/button_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,6 +14,7 @@ import 'package:fast_pdf/features/files/blocs/pdf_editor/pdf_editor_bloc.dart';
 import 'package:fast_pdf/features/files/widgets/button_set_widget.dart';
 import 'package:fast_pdf/features/files/widgets/reordable_pages.dart';
 import 'package:fast_pdf/features/files/widgets/signatures_bottom.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditPdfScreen extends StatefulWidget {
   const EditPdfScreen({super.key});
@@ -282,6 +282,11 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                             case 4:
                               showSignatureSelector(
                                 context: context,
+                                onDeleteSignature: (id) async {
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+                                  await prefs.remove('signature_$id');
+                                },
                                 onSignatureSelected:
                                     (Uint8List selectedSignature, _) {
                                       context.read<PdfEditorBloc>().add(

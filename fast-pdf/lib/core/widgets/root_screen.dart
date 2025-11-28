@@ -9,6 +9,7 @@ import 'package:fast_pdf/core/widgets/file_card_widget.dart';
 import 'package:fast_pdf/features/files/blocs/scan/scan_bloc.dart';
 import 'package:fast_pdf/features/files/widgets/pdf_converter_screen.dart';
 import 'package:fast_pdf/features/files/widgets/scan_to_pdf_screen.dart';
+import 'package:fast_pdf/features/settings/widgets/screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -61,6 +62,9 @@ class _RootScreenState extends State<RootScreen> {
                   CustomAppBar(
                     left: ButtonWidget(
                       asset: 'assets/images/icons/settings.svg',
+                      onTap: () => Navigator.of(context).push(
+                        CupertinoPageRoute(builder: (_) => SettingsScreen()),
+                      ),
                     ),
                     titleWidget: Text(
                       "Main",
