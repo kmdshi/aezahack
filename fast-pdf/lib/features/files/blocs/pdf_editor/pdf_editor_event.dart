@@ -16,7 +16,6 @@ final class LoadPdfEvent extends PdfEditorEvent {
   });
 }
 
-
 class LoadPdfFromPathEvent extends PdfEditorEvent {
   final String path;
   LoadPdfFromPathEvent(this.path);
@@ -28,11 +27,7 @@ final class ReorderPagesEvent extends PdfEditorEvent {
   ReorderPagesEvent(this.pages);
 }
 
-final class DeletePageEvent extends PdfEditorEvent {
-  final int index;
-
-  DeletePageEvent(this.index);
-}
+final class DeletePageEvent extends PdfEditorEvent {}
 
 final class RenamePdfEvent extends PdfEditorEvent {
   final String newName;
@@ -60,10 +55,11 @@ final class AddPageEvent extends PdfEditorEvent {
   AddPageEvent(this.imageBytes);
 }
 
-class CopyPageEvent extends PdfEditorEvent {
-  final int index;
+class CopyPageEvent extends PdfEditorEvent {}
 
-  CopyPageEvent(this.index);
+final class UpdatePageIndex extends PdfEditorEvent {
+  final int index;
+  UpdatePageIndex({required this.index});
 }
 
 class AddSignatureEvent extends PdfEditorEvent {

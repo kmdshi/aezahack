@@ -31,7 +31,6 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
   int croppingIndex = 0;
   late TextEditingController fileNameController;
   late PageController _pageController;
-  int _currentPageIndex = 0;
   String oldName = '';
 
   @override
@@ -39,11 +38,6 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
     fileNameController = TextEditingController(text: 'Edit PDF');
     _pageController = PageController();
 
-    _pageController.addListener(() {
-      setState(() {
-        _currentPageIndex = _pageController.page?.round() ?? 0;
-      });
-    });
     super.initState();
   }
 
@@ -150,6 +144,11 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                             child: PageView.builder(
                               controller: _pageController,
                               itemCount: state.pages.length,
+                              onPageChanged: (index) {
+                                context.read<PdfEditorBloc>().add(
+                                  UpdatePageIndex(index: index),
+                                );
+                              },
                               itemBuilder: (context, index) {
                                 final page = state.pages[index];
 
@@ -236,11 +235,6 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
 
                           if (pdfState.pages.isEmpty) return;
 
-                          final pageIndex = _currentPageIndex.clamp(
-                            0,
-                            pdfState.pages.length - 1,
-                          );
-
                           switch (i) {
                             // context.read<PdfEditorBloc>().add(ExportPdfEvent());
 
@@ -256,7 +250,7 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                               break;
                             case 1:
                               context.read<PdfEditorBloc>().add(
-                                DeletePageEvent(pageIndex),
+                                DeletePageEvent(),
                               );
                               break;
 
@@ -267,15 +261,15 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                               }
 
                               setState(() {
-                                croppingIndex = _currentPageIndex;
-                                croppingImage = state.pages[_currentPageIndex];
+                                croppingIndex = state.currentPageIndex;
+                                croppingImage = state.pages[state.currentPageIndex];
                                 isCropping = true;
                               });
                               break;
 
                             case 3:
                               context.read<PdfEditorBloc>().add(
-                                CopyPageEvent(pageIndex),
+                                CopyPageEvent(),
                               );
                               break;
 
@@ -321,7 +315,7 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                                 width: 22,
                                 height: 4,
                                 decoration: BoxDecoration(
-                                  color: _currentPageIndex == i
+                                  color: state.currentPageIndex == i
                                       ? Colors.white
                                       : const Color(0xFF929292),
                                   borderRadius: BorderRadius.circular(2),
