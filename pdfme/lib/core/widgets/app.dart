@@ -25,7 +25,7 @@ class _AppState extends State<App> {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: AIScreen(),
+        home: WelcomeScreen(),
         theme: AppTheme.lightTheme,
       ),
     );

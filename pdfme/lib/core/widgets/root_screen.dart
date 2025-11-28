@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:pdf_app/features/actions/widgets/screen.dart';
+import 'package:pdf_app/features/ai/widgets/screen.dart';
 import 'package:pdf_app/features/settings/widgets/screen.dart';
 import 'package:pdf_app/features/signature/widgets/create_new_sign.dart';
 import 'package:pdf_app/features/signature/widgets/sign_screen.dart';
@@ -19,7 +20,7 @@ class _RootScreenState extends State<RootScreen> {
 
   final List<Widget> _screens = [
     const ActionsScreen(),
-    // const FilesScreen(),
+    const AIScreen(),
     const SingScreen(),
     const SettingsScreen(),
   ];
@@ -35,10 +36,10 @@ class _RootScreenState extends State<RootScreen> {
         useBackdropGroup: true,
         settings: const LiquidGlassSettings(
           blur: 5,
-          visibility: 1.0, // делает стекло заметнее
-          thickness: 25, // более сильное преломление
-          refractiveIndex: 1.35, // максимальный эффект стекла
-          saturation: 3, // усиливает "цветность" преломления
+          visibility: 1.0,
+          thickness: 10, 
+          refractiveIndex: 1.35, 
+          saturation: 3,
         ),
 
         child: Row(
@@ -65,23 +66,23 @@ class _RootScreenState extends State<RootScreen> {
                           index: 0,
                           text: 'Actions',
                         ),
-                        // SizedBox(width: 10),
-                        // _navItem(
-                        //   asset: 'assets/images/icons/files_i.svg',
-                        //   index: 1,
-                        //   text: 'Files',
-                        // ),
+                        SizedBox(width: 10),
+                        _navItem(
+                          asset: 'assets/images/icons/stars.svg',
+                          index: 1,
+                          text: 'PDF Me',
+                        ),
                         SizedBox(width: 10),
 
                         _navItem(
                           asset: 'assets/images/icons/sign_i.svg',
-                          index: 1,
+                          index: 2,
                           text: 'Signature',
                         ),
                         SizedBox(width: 10),
                         _navItem(
                           asset: 'assets/images/icons/settings_i.svg',
-                          index: 2,
+                          index: 3,
                           text: 'Settings',
                         ),
                       ],
@@ -134,7 +135,7 @@ class _RootScreenState extends State<RootScreen> {
     required String text,
   }) {
     final bool isActive = _index == index;
-    final Color color = _tabColor(index, isActive);
+    final gradient = _tabGradient(index);
 
     return GestureDetector(
       onTap: () => _changeTab(index),
@@ -147,14 +148,27 @@ class _RootScreenState extends State<RootScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SvgPicture.asset(
-                      asset,
-                      width: 24,
-                      height: 24,
-                      color: color,
+                    ShaderMask(
+                      shaderCallback: (bounds) => gradient.createShader(
+                        Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                      ),
+                      child: SvgPicture.asset(
+                        asset,
+                        width: 24,
+                        height: 24,
+                        color: Colors.white,
+                      ),
                     ),
                     const SizedBox(height: 4),
-                    Text(text, style: TextStyle(color: color)),
+                    Text(
+                      text,
+                      style: TextStyle(
+                        foreground: Paint()
+                          ..shader = gradient.createShader(
+                            const Rect.fromLTWH(0, 0, 200, 24),
+                          ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -185,18 +199,36 @@ class _RootScreenState extends State<RootScreen> {
     );
   }
 
-  Color _tabColor(int index, bool isActive) {
+  LinearGradient _tabGradient(int index) {
     switch (index) {
       case 0:
-        return const Color(0xFF55A4FF);
-      // case 1:
-      //   return const Color(0xFFF5D142);
+        return const LinearGradient(
+          colors: [Color(0xFF55A4FF), Color(0xFF3B96FF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
       case 1:
-        return const Color(0xFF4EE046);
+        return const LinearGradient(
+          colors: [Color(0xFF51A2FF), Color(0xFFFF7BC1)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
       case 2:
-        return const Color(0xFFFF81BE);
+        return const LinearGradient(
+          colors: [Color(0xFF4EE046), Color(0xFF61D449)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+      case 3:
+        return const LinearGradient(
+          colors: [Color(0xFFFF81BE), Color(0xFFFF3BDB)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
       default:
-        return const Color(0xFF5D5D5D);
+        return const LinearGradient(
+          colors: [Color(0xFF5D5D5D), Color(0xFF3D3D3D)],
+        );
     }
   }
 

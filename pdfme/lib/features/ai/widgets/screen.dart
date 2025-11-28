@@ -1,7 +1,10 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:file_picker/file_picker.dart';
@@ -16,7 +19,10 @@ class AIScreen extends StatefulWidget {
 
 class _AIScreenState extends State<AIScreen> {
   final TextEditingController _controller = TextEditingController();
-  List<Map<String, dynamic>> messages = [];
+  List<Map<String, dynamic>> messages = [
+    {"role": "ai", "text": "Hey! How can I help you today?"},
+  ];
+  bool isLoading = false;
 
   Future<String> generateStyledPdf(String filename, String rawText) async {
     final pdf = pw.Document();
@@ -34,6 +40,7 @@ class _AIScreenState extends State<AIScreen> {
         build: (context) => parseMarkdownLines(lines, ttf),
       ),
     );
+
     final dir = await getApplicationDocumentsDirectory();
     final file = File("${dir.path}/$filename");
     await file.writeAsBytes(await pdf.save());
@@ -53,76 +60,132 @@ class _AIScreenState extends State<AIScreen> {
       case "user":
         return Align(
           alignment: Alignment.centerRight,
-          child: Container(
-            margin: const EdgeInsets.all(8),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.blue[200],
-              borderRadius: BorderRadius.circular(12),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.7,
             ),
-            child: Text(msg["text"]),
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Colors.black.withOpacity(.2)),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Text(msg["text"]),
+            ),
+          ),
+        );
+
+      case "ai":
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Image.asset('assets/images/ai_logo.png', width: 40, height: 40),
+              const SizedBox(width: 8),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.7,
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFF1E0FF), Color(0xFFE4DDFF)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          msg["text"],
+                          style: const TextStyle(color: Color(0xFF383838)),
+                        ),
+                      ),
+                      if (msg["isLoading"] ?? false)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: SvgPicture.asset('assets/images/loading.svg'),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         );
 
       case "file":
-        return Align(
-          alignment: Alignment.centerLeft,
-          child: Card(
-            margin: const EdgeInsets.all(8),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    msg["filename"],
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () => OpenFilex.open(msg["internalPath"]),
-                        child: const Text("Открыть"),
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Image.asset('assets/images/ai_logo.png', width: 40, height: 40),
+              const SizedBox(width: 8),
+
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.7,
+                ),
+                child: InkWell(
+                  onTap: () async {
+                    final folder = await FilePicker.platform.getDirectoryPath();
+                    if (folder == null) return;
+
+                    final file = File("$folder/${msg['filename']}");
+                    await file.writeAsBytes(msg['bytes']);
+
+                    await OpenFilex.open(file.path);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFFF1E0FF), Color(0xFFE4DDFF)],
                       ),
-                      const SizedBox(width: 12),
-                      OutlinedButton(
-                        onPressed: () async {
-                          final path = await saveToUserFolder(
-                            msg["filename"],
-                            msg["bytes"],
-                          );
-                          if (path != null) OpenFilex.open(path);
-                        },
-                        child: const Text("Скачать"),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      msg["filename"],
+                      style: const TextStyle(
+                        color: Color(0xFF55A4FF), // голубой цвет
+                        decoration: TextDecoration
+                            .underline, // подчеркивание только тут
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
+                    ),
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         );
 
       default:
-        return Align(
-          alignment: Alignment.centerLeft,
-          child: Container(
-            margin: const EdgeInsets.all(8),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(msg["text"]),
-          ),
-        );
+        return const SizedBox.shrink();
     }
   }
 
-  /// Отправка сообщения модели и генерация PDF
   Future<void> sendMessage(String text) async {
-    setState(() => messages.add({"role": "user", "text": text}));
+    setState(() {
+      messages.add({"role": "user", "text": text});
+      messages.add({"role": "ai", "text": "Thinking...", "isLoading": true});
+      isLoading = true;
+    });
 
     final response = await OpenAI.instance.chat.create(
       model: "gpt-4.1-mini",
@@ -131,21 +194,15 @@ class _AIScreenState extends State<AIScreen> {
           role: OpenAIChatMessageRole.user,
           content: [
             OpenAIChatCompletionChoiceMessageContentItemModel.text('''
-  Создай уникальный документ по теме:
+Создай уникальный документ по теме:
 
-  "$text"
+"$text"
 
-  Требования:
-  - Тема документа — это только подсказка, сам текст должен быть полностью уникальным.
-  - Структура документа должна быть Markdown-подобной:
-    - Заголовки: # Главный заголовок, ## Подзаголовок
-    - Списки: начинаем строку с "- "
-    - Таблицы: строки начинаются с "|" и разделяются "|"
-    - Параграфы: обычный текст
-  - Не добавляй какие-либо объяснения, JSON или код.
-  - Не включай тему документа в текст, только создавай полноценный контент.
-  - Максимально структурируй: разбей на главы, подпункты, при необходимости вставляй таблицы или списки.
-
+Требования:
+- Тема документа — только подсказка, текст уникальный.
+- Структура Markdown: заголовки #, списки -, таблицы |, параграфы.
+- Не включать JSON, код или объяснения.
+- Разбей на главы, подпункты, таблицы или списки.
 '''),
           ],
         ),
@@ -154,56 +211,163 @@ class _AIScreenState extends State<AIScreen> {
 
     final rawText = response.choices.first.message.content?.first.text ?? "";
 
-    // Генерация PDF
     final filename = "document_${DateTime.now().millisecondsSinceEpoch}.pdf";
     final internalPath = await generateStyledPdf(filename, rawText);
     final bytes = await File(internalPath).readAsBytes();
 
     setState(() {
-      messages.add({
-        "role": "file",
-        "filename": filename,
-        "internalPath": internalPath,
-        "bytes": bytes,
-      });
+      final loadingIndex = messages.indexWhere(
+        (m) => m["text"] == "Thinking..." && m["role"] == "ai",
+      );
+
+      if (loadingIndex != -1) {
+        messages[loadingIndex] = {
+          "role": "file",
+          "filename": filename,
+          "internalPath": internalPath,
+          "bytes": bytes,
+        };
+      }
+
+      isLoading = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    final h = MediaQuery.of(context).size.height;
+
+    final double topBtnSize = w * 0.15;
+    final double bottomInputHeight = 70;
+    final double bottomOffset = bottomInputHeight + 16;
+
     return Scaffold(
-      appBar: AppBar(title: const Text("AI Styled PDF Chat")),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: messages.length,
-              itemBuilder: (_, i) => buildMessage(messages[i]),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: SvgPicture.asset(
+                'assets/images/bg_line.svg',
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _controller,
-                  decoration: const InputDecoration(
-                    hintText: "Введите сообщение...",
+
+            Positioned(
+              top: h * 0.02 + topBtnSize + 16,
+              left: 0,
+              right: 0,
+              bottom: bottomOffset,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: ListView.builder(
+                  itemCount: messages.length,
+                  itemBuilder: (_, i) => buildMessage(messages[i]),
+                ),
+              ),
+            ),
+
+            // Верхний блок (AppBar)
+            Positioned(
+              top: h * 0.02,
+              left: 0,
+              right: 0,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: w * 0.04),
+                child: Row(
+                  children: [
+                    SizedBox(width: topBtnSize), // пустое место слева
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          'PDF Me',
+                          style: TextStyle(
+                            fontSize: w * 0.065,
+                            color: const Color(0xFF383838),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                    LiquidGlassLayer(
+                      settings: LiquidGlassSettings(glassColor: Colors.white),
+                      child: LiquidGlass(
+                        shape: LiquidRoundedSuperellipse(borderRadius: 100),
+                        child: SizedBox(
+                          width: topBtnSize,
+                          height: topBtnSize,
+                          child: IconButton(
+                            icon: SvgPicture.asset(
+                              'assets/images/icons/refresh.svg',
+                              fit: BoxFit.cover,
+                            ),
+                            onPressed: () async {
+                              setState(() {
+                                messages = [];
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            Positioned(
+              bottom: 106,
+              left: 8,
+              right: 8,
+              child: LiquidGlassLayer(
+                child: LiquidGlass(
+                  shape: LiquidRoundedSuperellipse(borderRadius: 30),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _controller,
+                            onEditingComplete: () {
+                              final text = _controller.text.trim();
+                              if (text.isNotEmpty) {
+                                _controller.clear();
+                                sendMessage(text);
+                              }
+                            },
+                            decoration: const InputDecoration(
+                              hintText: "Write to PDF Me",
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.send),
-                onPressed: () {
-                  final text = _controller.text.trim();
-                  if (text.isNotEmpty) {
-                    _controller.clear();
-                    sendMessage(text);
-                  }
-                },
-              ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -236,7 +400,6 @@ class _AIScreenState extends State<AIScreen> {
           level++;
         }
         final text = line.substring(level).trim();
-
         widgets.add(
           pw.Header(
             level: level > 2 ? 2 : level,
@@ -272,7 +435,6 @@ class _AIScreenState extends State<AIScreen> {
     }
 
     flushTable();
-
     return widgets;
   }
 }
