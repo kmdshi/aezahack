@@ -324,7 +324,9 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                                             ? () {
                                                 _cropController.crop();
                                               }
-                                            : null,
+                                            : () => context
+                                                  .read<PdfEditorBloc>()
+                                                  .add(ExportPdfEvent()),
                                       ),
                                     ),
                                   ),
