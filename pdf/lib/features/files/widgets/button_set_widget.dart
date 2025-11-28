@@ -96,7 +96,7 @@ class _ButtonSetWidgetState extends State<ButtonSetWidget> {
                     ),
                     child: Center(
                       child: SvgPicture.asset(
-                        'assets/images/icons/add.svg',
+                        'assets/images/icons/check.svg',
                         width: centerBtn * 0.45,
                         height: centerBtn * 0.45,
                         color: Colors.white,

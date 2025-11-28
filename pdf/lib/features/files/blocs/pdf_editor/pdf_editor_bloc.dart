@@ -266,9 +266,20 @@ class PdfEditorBloc extends Bloc<PdfEditorEvent, PdfEditorState> {
     if (state is! PdfEditorLoaded) return;
 
     final s = state as PdfEditorLoaded;
-    final pages = List<Uint8List>.from(s.pages)..removeAt(event.index);
-    final updatedPdf = await _rebuildPdfFromPages(pages);
 
+    if (event.index < 0 || event.index >= s.pages.length) {
+      emit(PdfEditorError("Неправильный индекс страницы"));
+      return;
+    }
+
+    final pages = List<Uint8List>.from(s.pages)..removeAt(event.index);
+
+    if (pages.isEmpty) {
+      emit(PdfEditorInitial());
+      return;
+    }
+
+    final updatedPdf = await _rebuildPdfFromPages(pages);
     emit(s.copyWith(pdfBytes: updatedPdf, pages: pages));
   }
 

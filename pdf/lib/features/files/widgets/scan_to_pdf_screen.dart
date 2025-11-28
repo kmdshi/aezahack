@@ -16,6 +16,8 @@ import 'package:pdf_app/features/files/blocs/scan_to_pdf/scantopdf_bloc.dart';
 import 'package:pdf_app/features/files/widgets/crop_screen.dart';
 import 'package:pdfx/pdfx.dart';
 import 'package:path/path.dart' as p;
+import 'package:share_plus/share_plus.dart';
+import 'package:toastification/toastification.dart';
 
 final cur = ValueNotifier(0);
 
@@ -261,43 +263,19 @@ class _ScanToPdfScreenState extends State<ScanToPdfScreen> {
                               ),
                             ),
                           ),
-                          Spacer(),
-                          Text(
-                            'SCAN TO PDF',
-                            style: TextStyle(
-                              color: Color(0xFF383838),
-                              fontSize: 24,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Spacer(),
-                          LiquidGlassLayer(
-                            settings: LiquidGlassSettings(
-                              glassColor: Colors.white,
-                              blur: 200,
-                              thickness: 200,
-                            ),
-                            child: LiquidGlass(
-                              shape: LiquidRoundedSuperellipse(
-                                borderRadius: 100,
-                              ),
-                              child: SizedBox(
-                                width: 62,
-                                height: 62,
-
-                                child: IconButton(
-                                  icon: const Icon(
-                                    CupertinoIcons.add,
-                                    size: 24,
-                                    color: Color(0xFF55A4FF),
-                                  ),
-                                  onPressed: () {},
+                          Expanded(
+                            child: Center(
+                              child: Text(
+                                'SCAN TO PDF',
+                                style: TextStyle(
+                                  color: Color(0xFF383838),
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
                           ),
-
-                          const SizedBox(width: 12),
+                          SizedBox(width: 62),
                         ],
                       ),
                     ),
@@ -342,7 +320,23 @@ class _ScanToPdfScreenState extends State<ScanToPdfScreen> {
                           child: LiquidGlass(
                             shape: LiquidRoundedSuperellipse(borderRadius: 100),
                             child: InkWell(
-                              onTap: () {},
+                              onTap: () async {
+                                final tempDir = await getTemporaryDirectory();
+                                final path = p.join(
+                                  tempDir.path,
+                                  "scan_${DateTime.now().millisecondsSinceEpoch}.pdf",
+                                );
+
+                                final file = File(path);
+                                await file.writeAsBytes(state.pdfBytes);
+
+                                await SharePlus.instance.share(
+                                  ShareParams(
+                                    files: [XFile(path)],
+                                    text: "My scanned PDF",
+                                  ),
+                                );
+                              },
                               borderRadius: BorderRadius.circular(50),
                               child: Container(
                                 width: 70,
@@ -391,8 +385,10 @@ class _ScanToPdfScreenState extends State<ScanToPdfScreen> {
                             final file = File(path);
                             await file.writeAsBytes(bytes);
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("PDF сохранён: $path")),
+                              toastification.show(
+                                type: ToastificationType.success,
+                                title: Text("PDF saved succsefully"),
+                                autoCloseDuration: Duration(seconds: 3),
                               );
                             }
                           },

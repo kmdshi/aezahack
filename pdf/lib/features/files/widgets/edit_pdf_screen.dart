@@ -71,6 +71,10 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
           );
 
           context.read<PdfEditorBloc>().add(LoadPdfIdleEvent());
+        } else if (state is PdfEditorInitial) {
+          setState(() {
+            fileNameController.text = 'Edit PDF';
+          });
         } else if (state is PdfEditorLoaded) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             setState(() {
@@ -312,21 +316,15 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                                         icon: SvgPicture.asset(
                                           'assets/images/icons/check.svg',
                                           fit: BoxFit.cover,
-                                          color:
-                                              fileNameController.text ==
-                                                  'Edit PDF'
-                                              ? Color(0xFF5D5D5D)
-                                              : Color(0xFF55A4FF),
+                                          color: isCropping
+                                              ? Color(0xFF55A4FF)
+                                              : Color(0xFF5D5D5D),
                                         ),
-                                        onPressed: () {
-                                          if (isCropping) {
-                                            _cropController.crop();
-                                            return;
-                                          }
-                                          context.read<PdfEditorBloc>().add(
-                                            ExportPdfEvent(),
-                                          );
-                                        },
+                                        onPressed: isCropping
+                                            ? () {
+                                                _cropController.crop();
+                                              }
+                                            : null,
                                       ),
                                     ),
                                   ),
@@ -428,7 +426,11 @@ class _EditPdfScreenState extends State<EditPdfScreen> {
                           left: 0,
                           right: 0,
                           child: ButtonSetWidget(
-                            onCenterButtonTap: () {},
+                            onCenterButtonTap: () {
+                              context.read<PdfEditorBloc>().add(
+                                ExportPdfEvent(),
+                              );
+                            },
                             onSurroundingButtonTap: (i) {
                               switch (i) {
                                 // context.read<PdfEditorBloc>().add(ExportPdfEvent());

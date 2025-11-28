@@ -168,59 +168,69 @@ class _SignatureScreenState extends State<NewSignatureScreen> {
                 right: 0,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
+                  child: Stack(
+                    alignment: Alignment.center,
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          icon: const Icon(
-                            CupertinoIcons.xmark,
-                            size: 24,
-                            color: Color(0xFF383838),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
                           ),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ),
-                      const Spacer(),
-                      Expanded(
-                        child: TextField(
-                          controller: _nameController,
-                          decoration: const InputDecoration(
-                            hintText: 'Enter signature name',
-                            border: InputBorder.none,
-                          ),
-                          style: const TextStyle(
-                            fontSize: 32,
-                            color: Color(0xFF383838),
-                            fontWeight: FontWeight.w500,
+                          child: IconButton(
+                            icon: const Icon(
+                              CupertinoIcons.xmark,
+                              size: 24,
+                              color: Color(0xFF383838),
+                            ),
+                            onPressed: () => Navigator.pop(context),
                           ),
                         ),
                       ),
-                      const Spacer(),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            _savedSignature == null
-                                ? CupertinoIcons.check_mark
-                                : CupertinoIcons.delete,
-                            size: 24,
-                            color: _savedSignature == null
-                                ? const Color(0xFF383838)
-                                : Colors.red,
+
+                      Center(
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.55,
+                          child: TextField(
+                            controller: _nameController,
+                            textAlign: TextAlign.center,
+                            decoration: const InputDecoration(
+                              hintText: 'Enter name',
+                              border: InputBorder.none,
+                            ),
+                            style: const TextStyle(
+                              fontSize: 28,
+                              color: Color(0xFF383838),
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                          onPressed: _savedSignature == null
-                              ? _saveSignature
-                              : _confirmAndDeleteSignature,
                         ),
                       ),
-                      const SizedBox(width: 12),
+
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: Icon(
+                              _savedSignature == null
+                                  ? CupertinoIcons.check_mark
+                                  : CupertinoIcons.delete,
+                              size: 24,
+                              color: _savedSignature == null
+                                  ? Color(0xFF383838)
+                                  : Colors.red,
+                            ),
+                            onPressed: _savedSignature == null
+                                ? _saveSignature
+                                : _confirmAndDeleteSignature,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

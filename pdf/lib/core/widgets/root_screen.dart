@@ -34,11 +34,11 @@ class _RootScreenState extends State<RootScreen> {
       floatingActionButton: LiquidGlassLayer(
         useBackdropGroup: true,
         settings: const LiquidGlassSettings(
-          refractiveIndex: 1,
-          thickness: 10,
-          visibility: 2,
-          blur: 10,
-          glassColor: Color(0x33FFFFFF),
+          blur: 5,
+          visibility: 1.0, // делает стекло заметнее
+          thickness: 25, // более сильное преломление
+          refractiveIndex: 1.35, // максимальный эффект стекла
+          saturation: 3, // усиливает "цветность" преломления
         ),
 
         child: Row(
@@ -142,7 +142,7 @@ class _RootScreenState extends State<RootScreen> {
           ? LiquidGlass(
               shape: LiquidRoundedSuperellipse(borderRadius: 40),
               child: Container(
-                padding: EdgeInsets.all(8),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 key: ValueKey('active_$index'),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

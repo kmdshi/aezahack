@@ -125,7 +125,12 @@ class _ActionsScreenState extends State<ActionsScreen> {
                                     ),
                                   );
                                 },
-                                child: pdfCard(path),
+                                child: Column(
+                                  children: [
+                                    pdfCard(path),
+                                    SizedBox(height: 15),
+                                  ],
+                                ),
                               ),
                             ),
                         ],
