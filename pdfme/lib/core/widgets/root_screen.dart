@@ -37,8 +37,8 @@ class _RootScreenState extends State<RootScreen> {
         settings: const LiquidGlassSettings(
           blur: 5,
           visibility: 1.0,
-          thickness: 10, 
-          refractiveIndex: 1.35, 
+          thickness: 10,
+          refractiveIndex: 1.35,
           saturation: 3,
         ),
 
@@ -52,8 +52,8 @@ class _RootScreenState extends State<RootScreen> {
                   shape: LiquidRoundedSuperellipse(borderRadius: 40),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 15,
+                      horizontal: 10,
+                      vertical: 10,
                     ),
 
                     decoration: BoxDecoration(
@@ -93,7 +93,7 @@ class _RootScreenState extends State<RootScreen> {
                 GestureDetector(
                   onTap: () {
                     switch (_index) {
-                      case (1):
+                      case (2):
                         Navigator.of(context).push(
                           CupertinoPageRoute(
                             builder: (_) => NewSignatureScreen(),
