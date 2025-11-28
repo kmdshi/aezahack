@@ -22,7 +22,11 @@ class _AppState extends State<App> {
         BlocProvider(create: (context) => PdfEditorBloc()),
         BlocProvider(create: (context) => PdfConverterBloc()),
       ],
-      child: MaterialApp(home: WelcomeScreen(), theme: AppTheme.lightTheme),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: WelcomeScreen(),
+        theme: AppTheme.lightTheme,
+      ),
     );
   }
 }
