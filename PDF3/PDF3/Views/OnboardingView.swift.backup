@@ -1,0 +1,1290 @@
+import SwiftUI
+
+struct OnboardingView: View {
+    @ObservedObject var appState: AppState
+    @State private var currentPage = 0
+    
+    private let onboardingData: [OnboardingData] = [
+        OnboardingData(
+            imageName: "onboarding_scan_colorful",
+            title: "Scan to Perfect PDF",
+            subtitle: "📄📷",
+            description: "Simply point your camera at a document, and we'll make it clear and straight."
+        ),
+        OnboardingData(
+            imageName: "onboarding_organize_colorful", 
+            title: "AI Document Scanner",
+            subtitle: "🤖📄",
+            description: "Advanced AI technology recognizes and optimizes your documents automatically."
+        ),
+        OnboardingData(
+            imageName: "onboarding_share_colorful",
+            title: "Smart Scanning",
+            subtitle: "📁☁️", 
+            description: "AI automatically crops and enhances text."
+        )
+    ]
+    
+    var body: some View {
+        ZStack {
+            // Paper background
+            AppColors.paperGradient
+                .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Page content
+                TabView(selection: $currentPage) {
+                    ForEach(0..<onboardingData.count, id: \.self) { index in
+                        OnboardingPageView(data: onboardingData[index])
+                            .tag(index)
+                    }
+                }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                
+                // Bottom section
+                VStack(spacing: 24) {
+                    // Page indicator
+                    HStack(spacing: 8) {
+                        ForEach(0..<onboardingData.count, id: \.self) { index in
+                            Circle()
+                                .fill(currentPage == index ? AppColors.primaryBlue : AppColors.primaryBlue.opacity(0.3))
+                                .frame(width: 8, height: 8)
+                                .animation(.easeInOut(duration: 0.3), value: currentPage)
+                        }
+                    }
+                    
+                    // Action buttons
+                    VStack(spacing: 16) {
+                        if currentPage == onboardingData.count - 1 {
+                            // Get Started button
+                            Button(action: {
+                                appState.completeOnboarding()
+                            }) {
+                                Text("Get Started")
+                                    .font(AppFonts.headline)
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(AppColors.primaryGradient)
+                                    .clipShape(RoundedRectangle(cornerRadius: AppConstants.cornerRadius))
+                                    .shadow(color: AppColors.primaryBlue.opacity(0.4), radius: 12, x: 0, y: 6)
+                            }
+                            .padding(.horizontal, AppConstants.cardPadding)
+                        } else {
+                            // Next button
+                            Button(action: {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    currentPage += 1
+                                }
+                            }) {
+                                Text("Continue")
+                                    .font(AppFonts.headline)
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(AppColors.primaryGradient)
+                                    .clipShape(RoundedRectangle(cornerRadius: AppConstants.cornerRadius))
+                                    .shadow(color: AppColors.primaryBlue.opacity(0.4), radius: 12, x: 0, y: 6)
+                            }
+                            .padding(.horizontal, AppConstants.cardPadding)
+                        }
+                        
+                        // Skip button
+                        Button(action: {
+                            appState.completeOnboarding()
+                        }) {
+                            Text("Skip")
+                                .font(AppFonts.body)
+                                .foregroundColor(Color.gray)
+                        }
+                    }
+                }
+                .padding(.bottom, 50)
+            }
+        }
+    }
+}
+
+struct OnboardingPageView: View {
+    let data: OnboardingData
+    
+    var body: some View {
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                // Large image section in Adobe style
+                VStack {
+                    createAdobeStyleVisualization()
+                }
+                .frame(height: geometry.size.height * 0.7)
+                .padding(.top, 20)
+                
+                // Compact content section  
+                VStack(spacing: 12) {
+                    Text(data.title)
+                        .font(.system(size: 26, weight: .bold, design: .default))
+                        .foregroundColor(AppColors.primaryBlue)
+                        .multilineTextAlignment(.center)
+                    
+                    Text(data.description)
+                        .font(.system(size: 15, weight: .regular))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, 24)
+                }
+                .frame(maxWidth: .infinity)
+                
+                Spacer()
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func createAdobeStyleVisualization() -> some View {
+        if let uiImage = UIImage(named: data.imageName) {
+            Image(uiImage: uiImage)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: 380, maxHeight: 380)
+                .clipShape(RoundedRectangle(cornerRadius: 24))
+                .shadow(color: AppColors.shadowColor, radius: 16, x: 0, y: 8)
+        } else {
+            // Create Adobe Acrobat style visualizations
+            if data.title.contains("Perfect Scan") {
+                createAdobeScanVisualization()
+            } else if data.title.contains("AI Document Scanner") {
+                createAdobeEditVisualization()
+            } else {
+                createAdobeShareVisualization()
+            }
+        }
+    }
+    
+    private func createAdobeScanVisualization() -> some View {
+        ZStack {
+            // Неоморфизм фон с размытыми геометрическими фигурами
+            RoundedRectangle(cornerRadius: 32)
+                .fill(LinearGradient(
+                    colors: [Color(red: 0.98, green: 0.98, blue: 0.99), Color(red: 0.95, green: 0.96, blue: 0.98)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ))
+                .frame(width: 380, height: 380)
+                .overlay(
+                    // Внутренние тени для неоморфизма
+                    RoundedRectangle(cornerRadius: 32)
+                        .stroke(LinearGradient(
+                            colors: [Color.white.opacity(0.6), Color.clear],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ), lineWidth: 1)
+                )
+                .shadow(color: Color.gray.opacity(0.15), radius: 20, x: -8, y: -8)
+                .shadow(color: Color.black.opacity(0.1), radius: 20, x: 8, y: 8)
+            
+            VStack(spacing: 24) {
+                Spacer()
+                
+                // Центральная композиция: 3D телефон с лучом света
+                ZStack {
+                    // Проецируемый PDF документ (результат)
+                    VStack(spacing: 0) {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white)
+                            .frame(width: 140, height: 180)
+                            .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+                            .overlay(
+                                VStack(spacing: 6) {
+                                    // PDF иконка и заголовок
+                                    HStack {
+                                        Text("📄")
+                                            .font(.system(size: 16))
+                                        Text("PDF")
+                                            .font(.system(size: 12, weight: .bold))
+                                            .foregroundColor(AppColors.primaryBlue)
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.top, 10)
+                                    
+                                    // Линии документа
+                                    ForEach(0..<8) { lineIndex in
+                                        Rectangle()
+                                            .fill(Color.gray.opacity(0.2))
+                                            .frame(height: 2)
+                                            .frame(width: lineIndex == 2 ? 80 : 110)
+                                            .padding(.horizontal, 12)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    // Индикатор качества
+                                    HStack {
+                                        Circle()
+                                            .fill(Color.green)
+                                            .frame(width: 6, height: 6)
+                                        Text("Excellent Quality")
+                                            .font(.system(size: 8, weight: .medium))
+                                            .foregroundColor(.secondary)
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.bottom, 8)
+                                }
+                            )
+                        
+                        // Тень документа
+                        Ellipse()
+                            .fill(Color.black.opacity(0.08))
+                            .frame(width: 120, height: 12)
+                            .blur(radius: 4)
+                            .offset(y: -2)
+                    }
+                    .offset(x: 60, y: 20)
+                    .scaleEffect(0.9)
+                    
+                    // Луч света (проекция)
+                    Path { path in
+                        // Создаем форму луча света от телефона к документу
+                        path.move(to: CGPoint(x: -20, y: -30))
+                        path.addLine(to: CGPoint(x: -15, y: -35))
+                        path.addLine(to: CGPoint(x: 40, y: 10))
+                        path.addLine(to: CGPoint(x: 35, y: 15))
+                        path.closeSubpath()
+                    }
+                    .fill(LinearGradient(
+                        colors: [AppColors.primaryBlue.opacity(0.3), AppColors.primaryBlue.opacity(0.1)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ))
+                    .blur(radius: 1)
+                    
+                    // 3D стилизованный смартфон
+                    ZStack {
+                        // Внешние тени для 3D эффекта
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.black.opacity(0.15))
+                            .frame(width: 120, height: 220)
+                            .offset(x: 3, y: 5)
+                            .blur(radius: 3)
+                        
+                        // Корпус телефона (неоморфизм)
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(LinearGradient(
+                                colors: [Color(red: 0.9, green: 0.92, blue: 0.95), Color(red: 0.85, green: 0.87, blue: 0.9)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
+                            .frame(width: 120, height: 220)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(LinearGradient(
+                                        colors: [Color.white.opacity(0.5), Color.clear],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ), lineWidth: 1)
+                            )
+                            .shadow(color: Color.white.opacity(0.6), radius: 8, x: -4, y: -4)
+                            .shadow(color: Color.black.opacity(0.2), radius: 8, x: 4, y: 4)
+                        
+                        // Экран телефона
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.black.opacity(0.9))
+                            .frame(width: 100, height: 180)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(LinearGradient(
+                                        colors: [Color(red: 0.1, green: 0.15, blue: 0.2), Color.black],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ))
+                                    .frame(width: 90, height: 160)
+                                    .overlay(
+                                        VStack(spacing: 8) {
+                                            // Интерфейс приложения на экране
+                                            HStack {
+                                                Circle()
+                                                    .fill(Color.white.opacity(0.8))
+                                                    .frame(width: 8, height: 8)
+                                                Spacer()
+                                                Text("PDF Scanner")
+                                                    .font(.system(size: 6, weight: .medium))
+                                                    .foregroundColor(.white)
+                                                Spacer()
+                                                Rectangle()
+                                                    .fill(Color.white.opacity(0.6))
+                                                    .frame(width: 8, height: 6)
+                                                    .cornerRadius(1)
+                                            }
+                                            .padding(.horizontal, 6)
+                                            .padding(.top, 8)
+                                            
+                                            // Видоискатель камеры
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .stroke(AppColors.primaryBlue, lineWidth: 2)
+                                                .frame(width: 50, height: 70)
+                                                .background(
+                                                    RoundedRectangle(cornerRadius: 6)
+                                                        .fill(Color.white.opacity(0.9))
+                                                        .frame(width: 48, height: 68)
+                                                )
+                                                .overlay(
+                                                    VStack(spacing: 2) {
+                                                        ForEach(0..<6) { _ in
+                                                            Rectangle()
+                                                                .fill(Color.gray.opacity(0.3))
+                                                                .frame(height: 1)
+                                                                .padding(.horizontal, 4)
+                                                        }
+                                                    }
+                                                )
+                                            
+                                            Spacer()
+                                            
+                                            // Кнопка камеры
+                                            Circle()
+                                                .fill(Color.white)
+                                                .frame(width: 20, height: 20)
+                                                .overlay(
+                                                    Circle()
+                                                        .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                                                        .frame(width: 16, height: 16)
+                                                )
+                                                .padding(.bottom, 12)
+                                        }
+                                    )
+                            )
+                        
+                        // Камера телефона (источник света)
+                        Circle()
+                            .fill(LinearGradient(
+                                colors: [Color(red: 0.2, green: 0.3, blue: 0.4), Color.black],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
+                            .frame(width: 12, height: 12)
+                            .overlay(
+                                Circle()
+                                    .fill(AppColors.primaryBlue.opacity(0.8))
+                                    .frame(width: 6, height: 6)
+                                    .blur(radius: 1)
+                            )
+                            .offset(x: 30, y: -80)
+                    }
+                    .offset(x: -80, y: -10)
+                    .scaleEffect(1.1)
+                    
+                    // Световые эффекты
+                    ForEach(0..<3, id: \.self) { index in
+                        Circle()
+                            .fill(AppColors.primaryBlue.opacity(0.1 - Double(index) * 0.03))
+                            .frame(width: CGFloat(20 + index * 15), height: CGFloat(20 + index * 15))
+                            .offset(x: -50, y: -90)
+                            .blur(radius: CGFloat(2 + index))
+                    }
+                }
+                
+                Spacer()
+                
+                // Технологические индикаторы внизу
+                HStack(spacing: 20) {
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(LinearGradient(
+                                colors: [Color.green.opacity(0.2), Color.green.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
+                            .frame(width: 32, height: 32)
+                            .overlay(
+                                Text("📸")
+                                    .font(.system(size: 14))
+                            )
+                            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 2, y: 2)
+                        
+                        Text("Auto Focus")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(LinearGradient(
+                                colors: [AppColors.primaryBlue.opacity(0.2), AppColors.primaryBlue.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
+                            .frame(width: 32, height: 32)
+                            .overlay(
+                                Text("✨")
+                                    .font(.system(size: 14))
+                            )
+                            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 2, y: 2)
+                        
+                        Text("Enhancement")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(LinearGradient(
+                                colors: [Color.purple.opacity(0.2), Color.purple.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
+                            .frame(width: 32, height: 32)
+                            .overlay(
+                                Text("📄")
+                                    .font(.system(size: 14))
+                            )
+                            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 2, y: 2)
+                        
+                        Text("PDF")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding(.bottom, 20)
+            }
+        }
+        .frame(width: 380, height: 380)
+    }
+    
+    private func createAdobeEditVisualization() -> some View {
+        ZStack {
+            // Технологичный темно-синий фон
+            RoundedRectangle(cornerRadius: 32)
+                .fill(LinearGradient(
+                    colors: [
+                        Color(red: 0.08, green: 0.12, blue: 0.25),  // темно-синий
+                        Color(red: 0.05, green: 0.08, blue: 0.18),  // глубокий синий
+                        Color(red: 0.10, green: 0.08, blue: 0.20)   // темно-фиолетовый
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ))
+                .frame(width: 380, height: 380)
+                .shadow(color: Color.blue.opacity(0.3), radius: 20, x: 0, y: 8)
+            
+            // Фоновые технологичные эффекты
+            ForEach(0..<3, id: \.self) { index in
+                Circle()
+                    .fill(RadialGradient(
+                        colors: [
+                            Color.cyan.opacity(0.06), 
+                            Color.blue.opacity(0.03), 
+                            Color.clear
+                        ],
+                        center: .center,
+                        startRadius: 20,
+                        endRadius: CGFloat(80 + index * 60)
+                    ))
+                    .frame(width: CGFloat(160 + index * 120), height: CGFloat(160 + index * 120))
+                    .offset(
+                        x: CGFloat(index * 50 - 40),
+                        y: CGFloat(-index * 40 + 30)
+                    )
+                    .blur(radius: 6)
+            }
+            
+            VStack(spacing: 28) {
+                Spacer()
+                
+                // Центральная AI-композиция
+                ZStack {
+                    // Документ под сканированием
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.white)
+                        .frame(width: 180, height: 240)
+                        .shadow(color: Color.black.opacity(0.15), radius: 12, x: 0, y: 6)
+                        .overlay(
+                            VStack(spacing: 8) {
+                                // Заголовок документа
+                                HStack {
+                                    Text("📄")
+                                        .font(.system(size: 18))
+                                    Text("DOCUMENT")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundColor(.gray)
+                                    Spacer()
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.top, 16)
+                                
+                                // Текстовые линии документа
+                                VStack(spacing: 6) {
+                                    ForEach(0..<8) { lineIndex in
+                                        Rectangle()
+                                            .fill(Color.gray.opacity(0.3))
+                                            .frame(width: CGFloat(120 + (lineIndex % 2) * 20), height: 3)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                    }
+                                }
+                                .padding(.horizontal, 16)
+                                
+                                Spacer()
+                            }
+                        )
+                    
+                    // AI рамка сканирования
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(LinearGradient(
+                            colors: [Color.cyan, Color.blue, Color.purple],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ), lineWidth: 3)
+                        .frame(width: 190, height: 250)
+                        .shadow(color: Color.cyan.opacity(0.6), radius: 8, x: 0, y: 0)
+                    
+                    // AI точки по углам
+                    ForEach(0..<4) { cornerIndex in
+                        Circle()
+                            .fill(RadialGradient(
+                                colors: [Color.cyan, Color.blue.opacity(0.8)],
+                                center: .center,
+                                startRadius: 1,
+                                endRadius: 8
+                            ))
+                            .frame(width: 16, height: 16)
+                            .shadow(color: Color.cyan.opacity(0.8), radius: 4, x: 0, y: 0)
+                            .offset(
+                                x: cornerIndex % 2 == 0 ? -95 : 95,
+                                y: cornerIndex < 2 ? -125 : 125
+                            )
+                    }
+                    
+                    // AI сканирующие лучи
+                    ForEach(0..<3) { rayIndex in
+                        RoundedRectangle(cornerRadius: 1)
+                            .fill(LinearGradient(
+                                colors: [Color.cyan.opacity(0.8), Color.cyan.opacity(0.3)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ))
+                            .frame(width: 190, height: 2)
+                            .offset(y: CGFloat(-60 + rayIndex * 60))
+                            .blur(radius: 0.5)
+                    }
+                    
+                    // AI процессинг индикатор
+                    VStack(spacing: 4) {
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 8, height: 8)
+                            Text("AI PROCESSING")
+                                .font(.system(size: 8, weight: .bold))
+                                .foregroundColor(.green)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color.black.opacity(0.7))
+                        )
+                    }
+                    .offset(y: -150)
+                }
+                
+                Spacer()
+                
+                // AI технологии индикаторы
+                HStack(spacing: 25) {
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(RadialGradient(
+                                colors: [Color.cyan.opacity(0.5), Color.cyan.opacity(0.1)],
+                                center: .center,
+                                startRadius: 5,
+                                endRadius: 16
+                            ))
+                            .frame(width: 32, height: 32)
+                            .overlay(
+                                Text("🤖")
+                                    .font(.system(size: 14))
+                            )
+                            .shadow(color: Color.cyan.opacity(0.5), radius: 6, x: 0, y: 2)
+                        
+                        Text("AI Recognition")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.cyan)
+                    }
+                    
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(RadialGradient(
+                                colors: [Color.blue.opacity(0.5), Color.blue.opacity(0.1)],
+                                center: .center,
+                                startRadius: 5,
+                                endRadius: 16
+                            ))
+                            .frame(width: 32, height: 32)
+                            .overlay(
+                                Text("🔍")
+                                    .font(.system(size: 14))
+                            )
+                            .shadow(color: Color.blue.opacity(0.5), radius: 6, x: 0, y: 2)
+                        
+                        Text("Auto Detect")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.blue)
+                    }
+                    
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(RadialGradient(
+                                colors: [Color.purple.opacity(0.5), Color.purple.opacity(0.1)],
+                                center: .center,
+                                startRadius: 5,
+                                endRadius: 16
+                            ))
+                            .frame(width: 32, height: 32)
+                            .overlay(
+                                Text("⚡")
+                                    .font(.system(size: 14))
+                            )
+                            .shadow(color: Color.purple.opacity(0.5), radius: 6, x: 0, y: 2)
+                        
+                        Text("Optimize")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.purple)
+                    }
+                }
+                .padding(.bottom, 20)
+            }
+        }
+        .frame(width: 380, height: 380)
+    }
+    
+
+    private func createAdobeShareVisualization() -> some View {
+        ZStack {
+            // Футуристичный темный фон с градиентами
+            RoundedRectangle(cornerRadius: 32)
+                .fill(LinearGradient(
+                    colors: [
+                        Color(red: 0.05, green: 0.08, blue: 0.2),  // темно-синий
+                        Color(red: 0.1, green: 0.05, blue: 0.15),  // темно-фиолетовый
+                        Color(red: 0.02, green: 0.06, blue: 0.18)   // глубокий синий
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ))
+                .frame(width: 380, height: 380)
+                .shadow(color: Color.purple.opacity(0.3), radius: 20, x: 0, y: 8)
+                                                        path.addCurve(to: CGPoint(x: 50, y: 75),
+                                                                    control1: CGPoint(x: 60, y: 50),
+                                                                    control2: CGPoint(x: 55, y: 65))
+                                                        path.addCurve(to: CGPoint(x: 20, y: 80),
+                                                                    control1: CGPoint(x: 40, y: 85),
+                                                                    control2: CGPoint(x: 30, y: 82))
+                                                        path.addCurve(to: CGPoint(x: 10, y: 45),
+                                                                    control1: CGPoint(x: 8, y: 70),
+                                                                    control2: CGPoint(x: 12, y: 55))
+                                                        path.addCurve(to: CGPoint(x: 15, y: 20),
+                                                                    control1: CGPoint(x: 5, y: 30),
+                                                                    control2: CGPoint(x: 12, y: 25))
+                                                        path.closeSubpath()
+                                                    }
+                                                    .fill(LinearGradient(
+                                                        colors: [Color(red: 0.95, green: 0.94, blue: 0.9), Color(red: 0.92, green: 0.9, blue: 0.85)],
+                                                        startPoint: .topLeading,
+                                                        endPoint: .bottomTrailing
+                                                    ))
+                                                    .shadow(color: Color.black.opacity(0.3), radius: 2, x: 1, y: 2)
+                                                    
+                                                    // Складки на бумаге
+                                                    ForEach(0..<3, id: \.self) { index in
+                                                        Path { path in
+                                                            let startX = CGFloat(20 + index * 10)
+                                                            let startY = CGFloat(25 + index * 15)
+                                                            path.move(to: CGPoint(x: startX, y: startY))
+                                                            path.addCurve(to: CGPoint(x: startX + 15, y: startY + 20),
+                                                                        control1: CGPoint(x: startX + 5, y: startY + 8),
+                                                                        control2: CGPoint(x: startX + 12, y: startY + 15))
+                                                        }
+                                                        .stroke(Color.black.opacity(0.2), lineWidth: 0.5)
+                                                    }
+                                                    
+                                                    // Неразборчивые линии текста
+                                                    VStack(spacing: 3) {
+                                                        ForEach(0..<4, id: \.self) { _ in
+                                                            Path { path in
+                                                                path.move(to: CGPoint(x: 20, y: 0))
+                                                                path.addCurve(to: CGPoint(x: 45, y: 2),
+                                                                            control1: CGPoint(x: 30, y: -1),
+                                                                            control2: CGPoint(x: 40, y: 3))
+                                                            }
+                                                            .stroke(Color.gray.opacity(0.4), lineWidth: 0.8)
+                                                        }
+                                                    }
+                                                    .offset(x: 0, y: -10)
+                                                }
+                                            }
+                                            .padding(.leading, 8)
+                                            
+                                            // Стрелка преобразования
+                                            VStack(spacing: 2) {
+                                                ForEach(0..<3, id: \.self) { index in
+                                                    Circle()
+                                                        .fill(Color.orange)
+                                                        .frame(width: 3, height: 3)
+                                                        .opacity(0.5 + Double(index) * 0.25)
+                                                }
+                                                Text("→")
+                                                    .font(.system(size: 12, weight: .bold))
+                                                    .foregroundColor(.orange)
+                                                ForEach(0..<3, id: \.self) { index in
+                                                    Circle()
+                                                        .fill(Color.orange)
+                                                        .frame(width: 3, height: 3)
+                                                        .opacity(1.0 - Double(index) * 0.25)
+                                                }
+                                            }
+                                            
+                                            // СПРАВА: Идеальный PDF документ
+                                            VStack(spacing: 6) {
+                                                Text("AFTER")
+                                                    .font(.system(size: 6, weight: .bold))
+                                                    .foregroundColor(.secondary)
+                                                
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .fill(Color.white)
+                                                    .frame(width: 70, height: 110)
+                                                    .shadow(color: Color.orange.opacity(0.3), radius: 4, x: 0, y: 2)
+                                                    .overlay(
+                                                        VStack(spacing: 8) {
+                                                            // PDF заголовок
+                                                            HStack {
+                                                                Text("📄")
+                                                                    .font(.system(size: 8))
+                                                                Text("PDF")
+                                                                    .font(.system(size: 6, weight: .bold))
+                                                                    .foregroundColor(.orange)
+                                                                Spacer()
+                                                            }
+                                                            .padding(.horizontal, 6)
+                                                            .padding(.top, 6)
+                                                            
+                                                            // Идеально ровные линии текста
+                                                            VStack(spacing: 3) {
+                                                                ForEach(0..<8, id: \.self) { index in
+                                                                    Rectangle()
+                                                                        .fill(Color.gray.opacity(0.4))
+                                                                        .frame(height: 1)
+                                                                        .frame(width: index == 3 ? 40 : 55)
+                                                                        .padding(.horizontal, 6)
+                                                                }
+                                                            }
+                                                            
+                                                            Spacer()
+                                                            
+                                                            // Индикатор качества
+                                                            HStack {
+                                                                Circle()
+                                                                    .fill(Color.green)
+                                                                    .frame(width: 4, height: 4)
+                                                                Text("Perfect Quality")
+                                                                    .font(.system(size: 5, weight: .medium))
+                                                                    .foregroundColor(.green)
+                                                                Spacer()
+                                                            }
+                                                            .padding(.horizontal, 6)
+                                                            .padding(.bottom, 6)
+                                                        }
+                                                    )
+                                            }
+                                            .padding(.trailing, 8)
+                                        }
+                                        .padding(.horizontal, 8)
+                                        .padding(.top, 16)
+                                        
+                                        Spacer()
+                                        
+                                        // Статус бар внизу
+                                        HStack {
+                                            Text("⚡ Auto-Enhancement Active")
+                                                .font(.system(size: 6, weight: .medium))
+                                                .foregroundColor(.orange)
+                                            Spacer()
+                                        }
+                                        .padding(.horizontal, 12)
+                                        .padding(.bottom, 12)
+                                    }
+                                )
+                        )
+                    
+                    // Динамическая иконка камеры
+                    Circle()
+                        .fill(LinearGradient(
+                            colors: [Color.orange.opacity(0.8), Color.orange],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ))
+                        .frame(width: 14, height: 14)
+                        .overlay(
+                            Circle()
+                                .stroke(Color.white, lineWidth: 1)
+                                .frame(width: 10, height: 10)
+                        )
+                        .offset(x: 70, y: -140)
+                        .shadow(color: Color.orange.opacity(0.4), radius: 3, x: 0, y: 1)
+                }
+                
+                Spacer()
+                
+                // Индикаторы преобразования
+                HStack(spacing: 25) {
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(LinearGradient(
+                                colors: [Color.orange.opacity(0.2), Color.orange.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
+                            .frame(width: 32, height: 32)
+                            .overlay(
+                                Text("📸")
+                                    .font(.system(size: 14))
+                            )
+                            .shadow(color: Color.orange.opacity(0.3), radius: 4, x: 0, y: 2)
+                        
+                        Text("Capture")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(LinearGradient(
+                                colors: [Color.orange.opacity(0.2), Color.orange.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
+                            .frame(width: 32, height: 32)
+                            .overlay(
+                                Text("✨")
+                                    .font(.system(size: 14))
+                            )
+                            .shadow(color: Color.orange.opacity(0.3), radius: 4, x: 0, y: 2)
+                        
+                        Text("Transform")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(LinearGradient(
+                                colors: [Color.orange.opacity(0.2), Color.orange.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
+                            .frame(width: 32, height: 32)
+                            .overlay(
+                                Text("📄")
+                                    .font(.system(size: 14))
+                            )
+                            .shadow(color: Color.orange.opacity(0.3), radius: 4, x: 0, y: 2)
+                        
+                        Text("Perfect PDF")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding(.bottom, 20)
+            }
+        }
+        .frame(width: 380, height: 380)
+    }
+    
+    private func createAdobeEditVisualization() -> some View {
+        ZStack {
+            // Технологичный темно-синий фон
+            RoundedRectangle(cornerRadius: 32)
+                .fill(LinearGradient(
+                    colors: [
+                        Color(red: 0.08, green: 0.12, blue: 0.25),
+                        Color(red: 0.05, green: 0.08, blue: 0.18)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ))
+                .frame(width: 380, height: 380)
+                .shadow(color: Color.blue.opacity(0.3), radius: 20, x: 0, y: 8)
+            
+            VStack(spacing: 28) {
+                Spacer()
+                
+                // AI документ под сканированием
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.white)
+                    .frame(width: 180, height: 240)
+                    .shadow(color: Color.black.opacity(0.15), radius: 12, x: 0, y: 6)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(LinearGradient(
+                                colors: [Color.cyan, Color.blue, Color.purple],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ), lineWidth: 3)
+                            .shadow(color: Color.cyan.opacity(0.6), radius: 8, x: 0, y: 0)
+                    )
+                
+                Spacer()
+                
+                // AI индикаторы
+                HStack(spacing: 25) {
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(Color.cyan.opacity(0.3))
+                            .frame(width: 32, height: 32)
+                            .overlay(Text("🤖").font(.system(size: 14)))
+                        Text("AI Recognition")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.cyan)
+                    }
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(Color.blue.opacity(0.3))
+                            .frame(width: 32, height: 32)
+                            .overlay(Text("🔍").font(.system(size: 14)))
+                        Text("Auto Detect")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.blue)
+                    }
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(Color.purple.opacity(0.3))
+                            .frame(width: 32, height: 32)
+                            .overlay(Text("⚡").font(.system(size: 14)))
+                        Text("Optimize")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.purple)
+                    }
+                }
+                .padding(.bottom, 20)
+            }
+        }
+        .frame(width: 380, height: 380)
+    }
+            
+            // Фоновые неоновые эффекты
+            ForEach(0..<3, id: \.self) { index in
+                Circle()
+                    .fill(RadialGradient(
+                        colors: [
+                            Color.cyan.opacity(0.08), 
+                            Color.purple.opacity(0.05), 
+                            Color.clear
+                        ],
+                        center: .center,
+                        startRadius: 10,
+                        endRadius: CGFloat(60 + index * 40)
+                    ))
+                    .frame(width: CGFloat(120 + index * 80), height: CGFloat(120 + index * 80))
+                    .offset(
+                        x: CGFloat(index * 40 - 60),
+                        y: CGFloat(-index * 30 + 40)
+                    )
+                    .blur(radius: 4)
+            }
+            
+            VStack(spacing: 20) {
+                Spacer()
+                
+                // Футуристичная композиция: рука + телефон + документ + AI
+                ZStack {
+                    // Размытый документ на поверхности
+                    VStack(spacing: 0) {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(LinearGradient(
+                                colors: [Color.white.opacity(0.9), Color.gray.opacity(0.8)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
+                            .frame(width: 140, height: 200)
+                            .blur(radius: 4) // размытие документа
+                            .overlay(
+                                VStack(spacing: 4) {
+                                    // Размытые линии текста
+                                    ForEach(0..<12) { index in
+                                        Rectangle()
+                                            .fill(Color.gray.opacity(0.4))
+                                            .frame(height: 2)
+                                            .frame(width: index == 3 || index == 7 ? 80 : 110)
+                                            .blur(radius: 1)
+                                            .padding(.horizontal, 16)
+                                    }
+                                }
+                                .padding(.top, 20)
+                            )
+                        
+                        // Тень документа
+                        Ellipse()
+                            .fill(Color.black.opacity(0.2))
+                            .frame(width: 120, height: 16)
+                            .blur(radius: 8)
+                            .offset(y: -4)
+                    }
+                    .offset(x: 0, y: 80) // документ внизу
+                    
+                    // AI рамка сканирования вокруг документа
+                    ZStack {
+                        // Основная AI рамка
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(LinearGradient(
+                                colors: [Color.cyan, Color.purple, Color.cyan],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ), lineWidth: 3)
+                            .frame(width: 160, height: 220)
+                            .shadow(color: Color.cyan.opacity(0.6), radius: 8, x: 0, y: 0)
+                        
+                        // Анимированные точки сканирования по углам
+                        ForEach(0..<4, id: \.self) { corner in
+                            let positions: [CGPoint] = [
+                                CGPoint(x: -70, y: -100), // top-left
+                                CGPoint(x: 70, y: -100),  // top-right
+                                CGPoint(x: -70, y: 100),  // bottom-left
+                                CGPoint(x: 70, y: 100)    // bottom-right
+                            ]
+                            
+                            Circle()
+                                .fill(RadialGradient(
+                                    colors: [Color.cyan, Color.cyan.opacity(0.3), Color.clear],
+                                    center: .center,
+                                    startRadius: 2,
+                                    endRadius: 12
+                                ))
+                                .frame(width: 16, height: 16)
+                                .overlay(
+                                    Circle()
+                                        .fill(Color.white)
+                                        .frame(width: 4, height: 4)
+                                )
+                                .position(x: 190 + positions[corner].x, y: 190 + positions[corner].y)
+                                .shadow(color: Color.cyan, radius: 4, x: 0, y: 0)
+                        }
+                        
+                        // Горизонтальные и вертикальные сканирующие линии
+                        ForEach(0..<3, id: \.self) { lineIndex in
+                            Rectangle()
+                                .fill(LinearGradient(
+                                    colors: [Color.clear, Color.cyan.opacity(0.6), Color.clear],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                ))
+                                .frame(width: 140, height: 1)
+                                .offset(y: CGFloat(lineIndex * 40 - 40))
+                                .blur(radius: 1)
+                        }
+                    }
+                    .offset(x: 0, y: 70)
+                    
+                    // Стилизованная рука держит телефон
+                    ZStack {
+                        // Рука (силуэт)
+                        Path { path in
+                            // Рисуем стилизованную руку
+                            path.move(to: CGPoint(x: 50, y: 120))
+                            path.addCurve(to: CGPoint(x: 80, y: 90),
+                                        control1: CGPoint(x: 55, y: 110),
+                                        control2: CGPoint(x: 70, y: 95))
+                            path.addCurve(to: CGPoint(x: 120, y: 80),
+                                        control1: CGPoint(x: 95, y: 85),
+                                        control2: CGPoint(x: 110, y: 82))
+                            path.addCurve(to: CGPoint(x: 140, y: 100),
+                                        control1: CGPoint(x: 130, y: 85),
+                                        control2: CGPoint(x: 138, y: 92))
+                            path.addCurve(to: CGPoint(x: 135, y: 150),
+                                        control1: CGPoint(x: 145, y: 120),
+                                        control2: CGPoint(x: 142, y: 135))
+                            path.addCurve(to: CGPoint(x: 110, y: 160),
+                                        control1: CGPoint(x: 128, y: 155),
+                                        control2: CGPoint(x: 120, y: 158))
+                            path.addCurve(to: CGPoint(x: 50, y: 120),
+                                        control1: CGPoint(x: 85, y: 165),
+                                        control2: CGPoint(x: 65, y: 145))
+                            path.closeSubpath()
+                        }
+                        .fill(LinearGradient(
+                            colors: [
+                                Color(red: 0.2, green: 0.3, blue: 0.5).opacity(0.8),
+                                Color(red: 0.3, green: 0.2, blue: 0.4).opacity(0.6)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ))
+                        .shadow(color: Color.black.opacity(0.3), radius: 6, x: 2, y: 4)
+                        
+                        // Футуристичный телефон в руке
+                        RoundedRectangle(cornerRadius: 18)
+                            .fill(LinearGradient(
+                                colors: [
+                                    Color(red: 0.1, green: 0.15, blue: 0.25),
+                                    Color.black
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
+                            .frame(width: 80, height: 140)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 18)
+                                    .stroke(LinearGradient(
+                                        colors: [Color.cyan.opacity(0.6), Color.purple.opacity(0.4)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ), lineWidth: 2)
+                            )
+                            .overlay(
+                                // Экран телефона с AI интерфейсом
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(LinearGradient(
+                                        colors: [
+                                            Color(red: 0.05, green: 0.1, blue: 0.2),
+                                            Color(red: 0.08, green: 0.05, blue: 0.15)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ))
+                                    .frame(width: 70, height: 120)
+                                    .overlay(
+                                        VStack(spacing: 6) {
+                                            // AI статус
+                                            HStack {
+                                                Circle()
+                                                    .fill(Color.cyan)
+                                                    .frame(width: 4, height: 4)
+                                                    .shadow(color: Color.cyan, radius: 2, x: 0, y: 0)
+                                                Text("AI SCANNING")
+                                                    .font(.system(size: 4, weight: .bold))
+                                                    .foregroundColor(.cyan)
+                                                Spacer()
+                                            }
+                                            .padding(.horizontal, 6)
+                                            .padding(.top, 6)
+                                            
+                                            // Видоискатель с AI рамкой
+                                            RoundedRectangle(cornerRadius: 4)
+                                                .stroke(Color.cyan, lineWidth: 1)
+                                                .frame(width: 45, height: 60)
+                                                .background(
+                                                    Color.white.opacity(0.1)
+                                                        .cornerRadius(4)
+                                                )
+                                                .overlay(
+                                                    VStack(spacing: 1) {
+                                                        // Сканирующие линии
+                                                        ForEach(0..<4) { _ in
+                                                            Rectangle()
+                                                                .fill(Color.cyan.opacity(0.3))
+                                                                .frame(height: 0.5)
+                                                                .padding(.horizontal, 3)
+                                                        }
+                                                    }
+                                                    .offset(y: -10)
+                                                )
+                                            
+                                            Spacer()
+                                            
+                                            // AI индикаторы
+                                            HStack {
+                                                Text("🤖")
+                                                    .font(.system(size: 6))
+                                                Text("AUTO CROP")
+                                                    .font(.system(size: 3, weight: .medium))
+                                                    .foregroundColor(.purple)
+                                                Spacer()
+                                            }
+                                            .padding(.horizontal, 6)
+                                            .padding(.bottom, 6)
+                                        }
+                                    )
+                            )
+                            .shadow(color: Color.cyan.opacity(0.3), radius: 8, x: 0, y: 4)
+                            .offset(x: 30, y: -20) // позиция телефона в руке
+                    }
+                    .offset(x: -60, y: -40) // позиция всей руки с телефоном
+                }
+                
+                Spacer()
+                
+                // AI технологические индикаторы
+                HStack(spacing: 25) {
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(RadialGradient(
+                                colors: [Color.cyan.opacity(0.4), Color.cyan.opacity(0.1)],
+                                center: .center,
+                                startRadius: 5,
+                                endRadius: 16
+                            ))
+                            .frame(width: 32, height: 32)
+                            .overlay(
+                                Text("🤖")
+                                    .font(.system(size: 14))
+                            )
+                            .shadow(color: Color.cyan.opacity(0.4), radius: 6, x: 0, y: 2)
+                        
+                        Text("AI Detection")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.cyan)
+                    }
+                    
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(RadialGradient(
+                                colors: [Color.purple.opacity(0.4), Color.purple.opacity(0.1)],
+                                center: .center,
+                                startRadius: 5,
+                                endRadius: 16
+                            ))
+                            .frame(width: 32, height: 32)
+                            .overlay(
+                                Text("✂️")
+                                    .font(.system(size: 14))
+                            )
+                            .shadow(color: Color.purple.opacity(0.4), radius: 6, x: 0, y: 2)
+                        
+                        Text("Auto Crop")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.purple)
+                    }
+                    
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(RadialGradient(
+                                colors: [Color.cyan.opacity(0.4), Color.purple.opacity(0.2)],
+                                center: .center,
+                                startRadius: 5,
+                                endRadius: 16
+                            ))
+                            .frame(width: 32, height: 32)
+                            .overlay(
+                                Text("✨")
+                                    .font(.system(size: 14))
+                            )
+                            .shadow(color: Color.cyan.opacity(0.4), radius: 6, x: 0, y: 2)
+                        
+                        Text("Enhance")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(Color.cyan)
+                    }
+                }
+                .padding(.bottom, 20)
+            }
+        }
+        .frame(width: 380, height: 380)
+    }
+}
+
+// MARK: - Data Models
+struct OnboardingData {
+    let imageName: String
+    let title: String
+    let subtitle: String
+    let description: String
+}
